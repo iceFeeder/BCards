@@ -1,7 +1,7 @@
 import random
 
 colors = [(c+1)*100 for c in range(4)]
-nums = [n for n in range(13)]
+nums = [n+1 for n in range(13)]
 
 class CardsPool:
     def __init__(self):
@@ -21,5 +21,10 @@ class CardsPool:
         while count < length:
             self._swap(count, int(random.random() * (count+1)))
             count += 1
-        print self.pool
+        return self.pool
 
+    def get_pool(self):
+        return self.pool
+
+    def get_cards(self,index = 0):
+        return self.pool[int(index)::4]

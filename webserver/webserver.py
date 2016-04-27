@@ -1,16 +1,18 @@
 import web
-import 
+import cardspool as pool
 
 render = web.template.render('templates/')
 
 urls = (
-    '/(.*)', 'Server'
+    '/index=(.*)', 'Server'
 )
 
+cards = pool.CardsPool()
+cards.shuffle()
+
 class Server:
-    cards = CardsPool()
-    def GET(self,name):
-        return render.my_template(name)
+    def GET(self,index):
+        return cards.get_cards(index)
 
 if __name__ == "__main__":
     app = web.application(urls, globals())
