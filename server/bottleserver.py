@@ -1,16 +1,13 @@
+from server import Server
 from bottle import route , run
-import json
-import cardspool as pool
 
-cards = pool.CardsPool()
-cards.shuffle()
 
-@route('/index/:id')
-def deal(id = 0):
-    response = {}
-    response['cards'] = cards.get_cards(id)
-    return json.dumps(response)
+class BottleServer(Server):
 
-run(host="0.0.0.0",port=8080)
+    @route('/index/:id')
+    def deal(id = 0):
+        return Server.get_cards(id)
 
+    def run(self):
+        run(host="0.0.0.0",port=8080)
 
