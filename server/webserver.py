@@ -10,9 +10,6 @@ class WebServer(Server):
         return Server.get_cards(index)
 
     def run(self):
-        app = web.application(urls, globals())
+        app = web.application(urls,{'WebServer': WebServer})
         app.run()
 
-
-w = WebServer()
-w.run()
