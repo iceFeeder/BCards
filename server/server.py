@@ -1,5 +1,4 @@
 import json
-from config import CNF
 import abc
 from cardspool import POOL as pool
 
