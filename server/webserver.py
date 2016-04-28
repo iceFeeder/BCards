@@ -1,18 +1,21 @@
 import web
 import cardspool as pool
+import json
 
 render = web.template.render('templates/')
 
 urls = (
-    '/index=(.*)', 'Server'
+    '/index/(.*)', 'Deal'
 )
 
 cards = pool.CardsPool()
 cards.shuffle()
 
-class Server:
+class Deal:
     def GET(self,index):
-        return cards.get_cards(index)
+        response = {}
+        response['cards'] = cards.get_cards(index)
+        return json.dumps(response)
 
 if __name__ == "__main__":
     app = web.application(urls, globals())
