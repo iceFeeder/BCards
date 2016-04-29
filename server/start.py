@@ -38,10 +38,19 @@ class Parser:
         aparser = argparse.ArgumentParser(parents=[cparser],
                                           formatter_class=argparse.RawTextHelpFormatter,
                                           description=self.desc)
-        aparser.add_argument('--framework',
+        aparser.add_argument('--framework','-f',
                              action='store',
                              default='bottle',
                              help='web server framework')
+        aparser.add_argument('--listen_ip','-i',
+                             action='store',
+                             default='0.0.0.0',
+                             help='listening ip address')
+        aparser.add_argument('--port','-p',
+                             action='store',
+                             default='8080',
+                             help='listening port')
+
         aparser.parse_args(self.unparsed_args)
         self.parser = aparser
 
@@ -56,5 +65,5 @@ class Parser:
 if __name__ == "__main__":
     parser = Parser(__doc__, sys.argv[1:])
     if parser.args.framework in SERVER_MAP:
-        server = SERVER_MAP[parser.args.framework]()
+        server = SERVER_MAP[parser.args.framework](parser.args.listen_ip, parser.args.port)
         server.run()

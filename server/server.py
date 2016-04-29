@@ -5,6 +5,9 @@ from cardspool import POOL as pool
 pool.shuffle()
 
 class Server(object):
+    def __init__(self,ip,port):
+        self.ip = ip
+        self.port = port
 
     @classmethod
     def get_cards(cls, index):

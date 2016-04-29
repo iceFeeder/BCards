@@ -9,5 +9,5 @@ class BottleServer(Server):
         return Server.get_cards(id)
 
     def run(self):
-        run(host="0.0.0.0",port=8080)
+        run(host=self.ip,port=self.port)
 
