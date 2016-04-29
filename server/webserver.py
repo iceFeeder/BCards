@@ -1,5 +1,6 @@
 import web
 from server import Server
+import sys
 
 urls = (
     '/index/(.*)', 'WebServer'
@@ -10,6 +11,7 @@ class WebServer(Server):
         return Server.get_cards(index)
 
     def run(self):
+        sys.argv[1:] = []
         app = web.application(urls,{'WebServer': WebServer})
         app.run()
 
