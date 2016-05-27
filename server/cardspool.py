@@ -28,5 +28,3 @@ class CardsPool:
 
     def get_cards(self,index = 0):
         return self.pool[int(index)::4]
-
-POOL = CardsPool()
