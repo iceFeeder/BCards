@@ -1,37 +1,43 @@
 from server import Server
-from bottle import default_app, get, template, run, route
-from bottle.ext.websocket import GeventWebSocketServer
-from bottle.ext.websocket import websocket
+import bottle
+from bottle.ext.websocket import GeventWebSocketServer, websocket
 import json
 
 class BottleServer(Server):
+    def __new__(cls, *args, **kwargs):
+        obj = super(BottleServer, cls).__new__(cls, *args, **kwargs)
+        obj.route('/websocket','GET',obj.connection,apply=[websocket])
+        return obj
 
-    @get('/')
-    def index():
-        return template('index')
+    def index(self):
+        return bottle.template('index')
 
-    @get('/websocket', apply=[websocket])
-    def connection(ws):
-        Server.players.add(ws)
+    def connection(self,ws):
+        self.players.add(ws)
         while True:
             msg = ws.receive()
             if msg is not None:
                 msg = json.loads(msg)
-                if msg['action'] in Server.ACTIONS:
-                    method = getattr(Server,Server.ACTIONS[msg['action']])
+                if msg['action'] in self.ACTIONS:
+                    method = getattr(self,self.ACTIONS[msg['action']])
                     ret, to_all = method(msg['data'])
                     if to_all:
-                        for p in Server.players:
+                        for p in self.players:
                             p.send(ret)
                     else:
                         ws.send(ret)
             else: break
-        Server.players.remove(ws)
+        self.players.remove(ws)
 
-    @route('/index/:id')
-    def deal(id = 0):
-        return Server.get_cards(id)
+    def route(self, uri, method, handler,apply = None):
+        def handler_trap_exception(*args, **kwargs):
+            try:
+                response = handler(*args, **kwargs)
+                return response
+            except Exception as e:
+                raise
+        bottle.route(uri, method, handler_trap_exception, apply=apply)
 
     def run(self):
-        run(host=self.ip,port=self.port,server=GeventWebSocketServer)
+        bottle.run(host=self.ip,port=self.port,server=GeventWebSocketServer)
 
