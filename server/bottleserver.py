@@ -3,6 +3,30 @@ import bottle
 from bottle.ext.websocket import GeventWebSocketServer, websocket
 import json
 
+@bottle.error(400)
+def error_400(err):
+    return err.body
+
+@bottle.error(403)
+def error_403(err):
+    return err.body
+
+@bottle.error(404)
+def error_404(err):
+    return err.body
+
+@bottle.error(409)
+def error_409(err):
+    return err.body
+
+@bottle.error(500)
+def error_500(err):
+    return err.body
+
+@bottle.error(503)
+def error_503(err):
+    return err.body
+
 class BottleServer(Server):
     def __new__(cls, *args, **kwargs):
         obj = super(BottleServer, cls).__new__(cls, *args, **kwargs)

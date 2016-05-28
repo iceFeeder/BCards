@@ -50,6 +50,10 @@ class Parser:
                              action='store',
                              default='8080',
                              help='listening port')
+        aparser.add_argument('--game','-g',
+                             action='store',
+                             default='BCards',
+                             help='the name of the game')
 
         aparser.parse_args(self.unparsed_args)
         self.parser = aparser
@@ -65,5 +69,5 @@ class Parser:
 if __name__ == "__main__":
     parser = Parser(__doc__, sys.argv[1:])
     if parser.args.framework in SERVER_MAP:
-        server = SERVER_MAP[parser.args.framework](parser.args.listen_ip, parser.args.port)
+        server = SERVER_MAP[parser.args.framework](parser.args.listen_ip, parser.args.port,parser.args.game)
         server.run()

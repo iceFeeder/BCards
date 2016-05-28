@@ -1,4 +1,5 @@
 import random
+import abc
 
 colors = [(c+1)*100 for c in range(4)]
 nums = [n+1 for n in range(13)]
@@ -28,3 +29,7 @@ class CardsPool:
 
     def get_cards(self,index = 0):
         return self.pool[int(index)::4]
+
+    @abc.abstractmethod
+    def check(self,cards):
+        raise NotImplementedError
