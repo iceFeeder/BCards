@@ -34,14 +34,24 @@ class BottleServer(Server):
         return obj
 
     def index(self):
-        return bottle.template('index')
+        return bottle.template('./example/index')
+
+    def load_static(self,filename):
+        return bottle.static_file(filename, root='./example/')
+
+    def load_img(self,img):
+        return bottle.static_file(img, root='./example/faces/')
 
     def connection(self,ws):
         self.players.add(ws)
         while True:
             msg = ws.receive()
             if msg is not None:
-                msg = json.loads(msg)
+                try:
+                    msg = json.loads(msg)
+                except Exception as e:
+                    print e.message
+                    break
                 if msg['action'] in self.ACTIONS:
                     method = getattr(self,self.ACTIONS[msg['action']])
                     ret, to_all = method(msg['data'])

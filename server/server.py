@@ -17,6 +17,8 @@ class Server(object):
         obj = super(Server, cls).__new__(cls, *args, **kwargs)
         obj.route('/','GET',obj.index)
         obj.route('/player/<id>','GET',obj.deal)
+        obj.route('/static/<filename>','GET',obj.load_static)
+        obj.route('/static/faces/<img>','GET',obj.load_img)
         return obj
 
     def __init__(self,ip,port,game):
@@ -27,7 +29,6 @@ class Server(object):
         self.shuffle()
 
     def show_cards(self,cards):
-        import pdb;pdb.set_trace()
         if self.gcore.check(cards):
             return json.dumps(cards), True
         else:
