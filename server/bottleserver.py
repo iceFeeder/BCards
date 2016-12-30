@@ -43,7 +43,7 @@ class BottleServer(Server):
         return bottle.static_file(img, root='./example/faces/')
 
     def connection(self,ws):
-        self.players.add(ws)
+        self.players.append(ws)
         while True:
             msg = ws.receive()
             if msg is not None:
@@ -54,7 +54,8 @@ class BottleServer(Server):
                     break
                 if msg['action'] in self.ACTIONS:
                     method = getattr(self,self.ACTIONS[msg['action']])
-                    ret, to_all = method(msg['data'])
+                    index = self.players.index(ws)
+                    ret, to_all = method(index)
                     if to_all:
                         for p in self.players:
                             p.send(ret)

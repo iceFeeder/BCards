@@ -17,7 +17,7 @@
                     $('#messages').append("<li>Your browser doesn't support WebSockets.</li>");
                 }
             }
-            ws = new WebSocket('ws://172.16.119.146:8080/websocket');
+            ws = new WebSocket('ws://127.0.0.1:8080/websocket');
             ws.onopen = function(evt) {
                 $('#messages').append('<li>Connected to chat.</li>');
             }

@@ -1,15 +1,12 @@
 import random
 import abc
 
-colors = [(c+1)*100 for c in range(4)]
-nums = [n+1 for n in range(13)]
 
-class CardsPool:
-    def __init__(self):
+class CardsPool(object):
+    def __init__(self,size):
         self.pool = []
-        for c in colors:
-            for n in nums:
-                self.pool.append(c+n)
+        for i in xrange(size):
+            self.pool.append(i)
 
     def _swap(self, i, j):
         tmp = self.pool[i]

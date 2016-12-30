@@ -25,7 +25,7 @@ class Server(object):
         self.ip = ip
         self.port = port
         self.gcore = GAME_MAP[game]()
-        self.players = set()
+        self.players = []
         self.shuffle()
 
     def show_cards(self,cards):
