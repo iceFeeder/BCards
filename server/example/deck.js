@@ -170,7 +170,7 @@ var Deck = (function () {
     var isSelected = false;
 
     // self = card
-    var self = { i: i, rank: rank, suit: suit, pos: i, $el: $el, mount: mount, unmount: unmount, setSide: setSide };
+    var self = { i: i, rank: rank, suit: suit, pos: i, $el: $el, mount: mount, unmount: unmount, setSide: setSide,isSelected:isSelected };
 
     var modules = Deck.modules;
     var module;
@@ -260,10 +260,10 @@ var Deck = (function () {
 
       e.preventDefault();
 
-      if (!isSelected){
+      if (!self.isSelected){
         pos = -10;
       }
-      isSelected = !isSelected;
+      self.isSelected = !self.isSelected;
       $el.style[transform] = translate(self.x + 'px', Math.round(self.y + pos) + 'px') + (self.rot ? ' rotate(' + self.rot + 'deg)' : '');
       //$el.style.zIndex = maxZ++;
     }
@@ -454,7 +454,7 @@ var Deck = (function () {
           duration: 250,
 
           x: Math.round((i - 2.05) * 10 * __fontSize / 16),
-          y: Math.round(-110 * __fontSize / 16),
+          y: Math.round(-110 * __fontSize / 16)+300,
           rot: 0,
 
           onStart: function onStart() {
@@ -468,9 +468,68 @@ var Deck = (function () {
     }
   };
 
+  var ___fontSize;
+
+  var play = {
+    deck:function deck(_deck5){
+      _deck5.play = _deck5.queued(play);
+      function play(next){
+        var cards = _deck5.cards;
+        var select = [];
+        var remain = [];
+
+        cards.forEach(function (card) {
+          if(card.isSelected) {
+            select.push(card)
+          }else {
+            remain.push(card)
+          }
+        });
+
+        _deck5.cards = remain
+        _deck5.post = select
+
+        ___fontSize = fontSize();
+
+        select.forEach(function (card, i) {
+          card.unmount()
+          if (i === select.length - 1) {
+            next();
+          }
+        });
+
+        remain.forEach(function (card,i) {
+          card.play(i,remain.length,function (){
+            if (i === remain.length - 1) {
+              next();
+            }
+          });
+        });
+      }
+    },
+    card:function card(_card5){
+      var $el = _card5.$el;
+      _card5.play = function (i,len, cb) {
+        _card5.animateTo({
+          delay: 0,
+          duration: 250,
+
+          x: Math.round((i - 2.05) * 10 * ___fontSize / 16),
+          y: Math.round(-110 * ___fontSize / 16)+300,
+          rot: 0,
+          onStart: function onStart() {
+            $el.style.zIndex = len - 1 + i;
+          },
+          onComplete: function onComplete() {
+            cb(i);
+          }
+        });
+      };
+    }
+  }
+
   function queue(target) {
     var array = Array.prototype;
-
     var queueing = [];
 
     target.queue = queue;
@@ -615,10 +674,11 @@ var Deck = (function () {
   }
   Deck.animationFrames = animationFrames;
   Deck.ease = ease;
-  Deck.modules = { poker: poker, sort: sort };
+  Deck.modules = { poker: poker, sort: sort, play: play};
   Deck.Card = _card;
   Deck.prefix = prefix;
   Deck.translate = translate;
+  Deck.pre = []
 
   return Deck;
 })();

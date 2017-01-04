@@ -15,6 +15,7 @@ $play.textContent = 'Play'
 
 $topbar.appendChild($poker)
 $topbar.appendChild($sort)
+$topbar.appendChild($play)
 
 var deck;
 var sortType = 0;
@@ -24,17 +25,46 @@ if (!window.WebSocket && window.MozWebSocket) {
   window.WebSocket = window.MozWebSocket;
 }
 var ws = new WebSocket('ws://127.0.0.1:8080/websocket');
+var MSG = '{"action":"ACTION","data":"DATA"}';
+
 ws.onopen = function(evt) {
-  ws.send('{"action":"'+"get"+'"'+"}");
+  var msg ={};
+  msg.action = "get"
+  msg.data = "None"
+  msg = JSON.stringify(msg)
+  ws.send(msg);
 }
 ws.onmessage = function(evt) {
   var data = JSON.parse(evt.data);
-  deck =  Deck(data.cards)
-  deck.mount($container)
+  if(data.type == "poker"){
+    deck =  Deck(data.cards)
+    deck.pos = data.index
+    deck.mount($container)
+  }else if(data.type == "post"){
+    deck.pre = data.data
+    console.log(data.data)
+  }
 }
 
 $sort.addEventListener('click', function () {
   deck.sort()
+})
+$play.addEventListener('click', function() {
+  deck.play()
+  var playCards = []
+  deck.post.forEach(function (card){
+    playCards.push(card.i)
+  });
+
+  var data = {}
+  data.cards = playCards
+  data.pre = deck.pre
+
+  var msg = {}
+  msg.action = "post"
+  msg.data = data
+  msg = JSON.stringify(msg);
+  ws.send(msg);
 })
 $poker.addEventListener('click', function () {
   deck.queue(function (next) {

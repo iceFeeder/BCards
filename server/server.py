@@ -11,6 +11,7 @@ class Server(object):
     ACTIONS = {
         'get':'get_cards',
         'put':'show_cards',
+        'post':'post_cards',
     }
 
     def __new__(cls, *args, **kwargs):
@@ -34,9 +35,21 @@ class Server(object):
         else:
             return constant.CHECK_FAIL, False
 
-    def get_cards(self, index):
+    def get_cards(self, index,data=None):
         response = {}
         response['cards'] = self.gcore.get_cards(index)
+        response['type'] = "poker"
+        response['index'] = index
+        return json.dumps(response), False
+
+    def post_cards(self, index,data):
+        response = {}
+        response['type'] = "post"
+        response['index'] = index
+        if self.gcore.check(data):
+            response['data'] = data['cards']
+            return json.dumps(response), True
+        response['data'] = "FALSE"
         return json.dumps(response), False
 
     def shuffle(self):

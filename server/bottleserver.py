@@ -55,7 +55,7 @@ class BottleServer(Server):
                 if msg['action'] in self.ACTIONS:
                     method = getattr(self,self.ACTIONS[msg['action']])
                     index = self.players.index(ws)
-                    ret, to_all = method(index)
+                    ret, to_all = method(index,msg['data'])
                     if to_all:
                         for p in self.players:
                             p.send(ret)
