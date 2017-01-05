@@ -40,10 +40,13 @@ ws.onmessage = function(evt) {
     deck.pos = data.index
     deck.mount($container)
   }else if(data.type == "post"){
-    console.log(data.data)
-    if (data.data != "FALSE") {
-      deck.prePost = data.data
-      deck.playPost(data)
+    console.log(data.postCards)
+    if (data.postCards != "check_fail") {
+      deck.prePost = data.postCards
+      if (deck.pos == data.index) {
+        deck.playPost()
+      }
+      deck.showCards(data)
     }
   }
 }

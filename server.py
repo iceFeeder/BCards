@@ -49,9 +49,9 @@ class Server(object):
         response['type'] = "post"
         response['index'] = index
         if self.gcore.check(data):
-            response['data'] = data['cards']
+            response['postCards'] = data['cards']
             return json.dumps(response), True
-        response['data'] = "FALSE"
+        response['postCards'] = constant.CHECK_FAIL
         return json.dumps(response), False
 
     def shuffle(self):

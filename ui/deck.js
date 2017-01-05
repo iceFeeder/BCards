@@ -473,42 +473,36 @@ var Deck = (function () {
   var playPost = {
     deck:function deck(_deck5){
       _deck5.playPost = _deck5.queued(playPost);
-      function playPost(next,data){
+      function playPost(next){
         var cards = _deck5.cards;
-        console.log(data)
-        if (data.index == _deck5.pos){
-          var select = [];
-          var remain = [];
+        var select = [];
+        var remain = [];
+        cards.forEach(function (card) {
+          if(card.isSelected) {
+            select.push(card)
+          }else {
+            remain.push(card)
+          }
+        });
 
-          cards.forEach(function (card) {
-            if(card.isSelected) {
-              select.push(card)
-            }else {
-              remain.push(card)
-            }
-          });
-          console.log(select)
-          console.log(remain)
-          _deck5.cards = remain
-          _deck5.post = data.data
+        _deck5.cards = remain
 
-          ___fontSize = fontSize();
+        ___fontSize = fontSize();
 
-          select.forEach(function (card, i) {
-            card.unmount()
-            if (i === select.length - 1) {
+        select.forEach(function (card, i) {
+          card.unmount()
+          if (i === select.length - 1) {
+            next();
+          }
+        });
+
+        remain.forEach(function (card,i) {
+          card.playPost(i, remain.length, function (){
+            if (i === remain.length - 1) {
               next();
             }
           });
-
-          remain.forEach(function (card,i) {
-            card.playPost(i,remain.length,function (){
-              if (i === remain.length - 1) {
-                next();
-              }
-            });
-          });
-        }
+        });
       }
     },
     card:function card(_card5){
@@ -547,6 +541,55 @@ var Deck = (function () {
         next()
       }
     },
+  }
+
+  var ____fontSize;
+
+  var showCards = {
+    deck:function deck(_deck7){
+      _deck7.showCards = _deck7.queued(showCards);
+      function showCards(next, data){
+        var _cards = data.postCards;
+        var len = _cards.length;
+        var cards = new Array(len);
+
+        var card;
+        for (var i = _cards.length; i; i--){
+          card = cards[i - 1] = _card(_cards[i - 1]);
+          card.setSide('front');
+          card.mount(_deck7.$el);
+        }
+
+        ____fontSize = fontSize();
+
+        cards.forEach(function (card,i) {
+          card.showCards(i, cards.length, data.index, function (){
+            if (i === cards.length - 1) {
+              next();
+            }
+          });
+        });
+      }
+    },
+    card:function card(_card7){
+      var $el = _card7.$el;
+      _card7.showCards = function (i,len,index, cb) {
+        _card7.animateTo({
+          delay: 0,
+          duration: 250,
+
+          x: Math.round((i - 2.05) * 10 * ____fontSize / 16),
+          y: -200,
+          rot: 0,
+          onStart: function onStart() {
+            $el.style.zIndex = len - 1 + i;
+          },
+          onComplete: function onComplete() {
+            cb(i);
+          }
+        });
+      };
+    }
   }
 
   function queue(target) {
@@ -695,7 +738,7 @@ var Deck = (function () {
   }
   Deck.animationFrames = animationFrames;
   Deck.ease = ease;
-  Deck.modules = { poker: poker, sort: sort, play: play, playPost: playPost};
+  Deck.modules = { poker: poker, sort: sort, play: play, playPost: playPost, showCards: showCards};
   Deck.Card = _card;
   Deck.prefix = prefix;
   Deck.translate = translate;
