@@ -1,13 +1,15 @@
 #!/usr/env python
-''' Python script to start a web server for BCard .'''
+''' Python script to start a web servers for BCard .'''
 
-from bottleserver import BottleServer
-from webserver import WebServer
 from ConfigParser import SafeConfigParser
 import argparse
 import os
 import sys
 import textwrap
+
+from servers.bottleserver import BottleServer
+from servers.webserver import WebServer
+
 
 SCRIPTDIR = os.path.abspath(os.path.dirname(sys.argv[0]))
 
@@ -40,8 +42,8 @@ class Parser:
                                           description=self.desc)
         aparser.add_argument('--framework','-f',
                              action='store',
-                             default='bottle',
-                             help='web server framework')
+                             default='servers',
+                             help='web servers framework')
         aparser.add_argument('--listen_ip','-i',
                              action='store',
                              default='0.0.0.0',

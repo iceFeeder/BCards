@@ -470,46 +470,50 @@ var Deck = (function () {
 
   var ___fontSize;
 
-  var play = {
+  var playPost = {
     deck:function deck(_deck5){
-      _deck5.play = _deck5.queued(play);
-      function play(next){
+      _deck5.playPost = _deck5.queued(playPost);
+      function playPost(next,data){
         var cards = _deck5.cards;
-        var select = [];
-        var remain = [];
+        console.log(data)
+        if (data.index == _deck5.pos){
+          var select = [];
+          var remain = [];
 
-        cards.forEach(function (card) {
-          if(card.isSelected) {
-            select.push(card)
-          }else {
-            remain.push(card)
-          }
-        });
+          cards.forEach(function (card) {
+            if(card.isSelected) {
+              select.push(card)
+            }else {
+              remain.push(card)
+            }
+          });
+          console.log(select)
+          console.log(remain)
+          _deck5.cards = remain
+          _deck5.post = data.data
 
-        _deck5.cards = remain
-        _deck5.post = select
+          ___fontSize = fontSize();
 
-        ___fontSize = fontSize();
-
-        select.forEach(function (card, i) {
-          card.unmount()
-          if (i === select.length - 1) {
-            next();
-          }
-        });
-
-        remain.forEach(function (card,i) {
-          card.play(i,remain.length,function (){
-            if (i === remain.length - 1) {
+          select.forEach(function (card, i) {
+            card.unmount()
+            if (i === select.length - 1) {
               next();
             }
           });
-        });
+
+          remain.forEach(function (card,i) {
+            card.playPost(i,remain.length,function (){
+              if (i === remain.length - 1) {
+                next();
+              }
+            });
+          });
+        }
       }
     },
     card:function card(_card5){
       var $el = _card5.$el;
-      _card5.play = function (i,len, cb) {
+      _card5.playPost = function (i,len, cb) {
         _card5.animateTo({
           delay: 0,
           duration: 250,
@@ -526,6 +530,23 @@ var Deck = (function () {
         });
       };
     }
+  }
+
+  var play = {
+    deck:function deck(_deck6){
+      _deck6.play = _deck6.queued(play);
+      function play(next){
+        var cards = _deck6.cards;
+        var select = [];
+        cards.forEach(function (card,i) {
+          if(card.isSelected) {
+            select.push(card.i)
+          }
+        });
+        _deck6.post = select
+        next()
+      }
+    },
   }
 
   function queue(target) {
@@ -632,7 +653,7 @@ var Deck = (function () {
     var __cards = data;
     var cards = new Array(__cards.length);
     var $el = createElement('div');
-    var self = observable({ mount: mount, unmount: unmount, cards: cards, $el: $el });
+    var self = observable({ mount: mount, unmount: unmount, cards: cards, $el: $el, prePost: [] });
     var $root;
 
     var modules = Deck.modules;
@@ -674,11 +695,10 @@ var Deck = (function () {
   }
   Deck.animationFrames = animationFrames;
   Deck.ease = ease;
-  Deck.modules = { poker: poker, sort: sort, play: play};
+  Deck.modules = { poker: poker, sort: sort, play: play, playPost: playPost};
   Deck.Card = _card;
   Deck.prefix = prefix;
   Deck.translate = translate;
-  Deck.pre = []
 
   return Deck;
 })();
