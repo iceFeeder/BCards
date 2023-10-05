@@ -34,3 +34,7 @@ class CardsPool(object):
 
     def reset(self):
         self.shuffle()
+
+    @abc.abstractmethod
+    def clear(self):
+        raise NotImplementedError

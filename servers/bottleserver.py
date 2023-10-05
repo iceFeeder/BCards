@@ -60,22 +60,23 @@ class BottleServer(Server):
                 if msg is not None:
                     msg = json.loads(msg)
                     print(msg)
-                    if msg['action'] in self.ACTIONS:
-                        method = getattr(self, self.ACTIONS[msg['action']])
-                        player_id = self.players.index(ws)
-                        ret, to_all = method(player_id, msg['data'])
-                        print("ret: ", ret)
+                    method = getattr(self, msg['action'])
+                    player_id = self.players.index(ws)
+                    ret, to_all = method(player_id, msg['data'])
+                    print("ret: ", ret)
+                    if ret:
                         if to_all:
                             for p in self.players:
-                                p.send(ret)
+                                p.send(json.dumps(ret))
                         else:
-                            ws.send(ret)
+                            ws.send(json.dumps(ret))
                 else:
                     break
             except Exception as e:
                 print("got Exception: ", str(e))
                 break
         print("Game Over...")
+        self.reset()
         self.players.clear()
 
     def route(self, uri, method, handler, apply=None):

@@ -51,7 +51,7 @@ class BCards(CardsPool):
                 if cs.type is None:
                     return False
             elif len(cs.values) == 2:
-                for card, cnts in cs.values:
+                for card, cnts in cs.values.items():
                     if cnts == 3:
                         cs.type = CardsType.FullHouse
                         cs.priority = BCard.PRIORITY_RANK[card]
@@ -82,6 +82,9 @@ class BCards(CardsPool):
         return ret
 
     def reset(self):
-        self.pre_cards = None
+        self.clear()
         super(BCards, self).reset()
+
+    def clear(self):
+        self.pre_cards = None
 
