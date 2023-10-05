@@ -50,28 +50,33 @@ class BottleServer(Server):
         return bottle.static_file(img, root='./ui/faces/')
 
     def connection(self, ws):
+        if not self.pre_check():
+            return
         self.players.append(ws)
         print("players: ", self.players)
         while True:
-            msg = ws.receive()
-            if msg is not None:
-                try:
+            try:
+                msg = ws.receive()
+                if msg is not None:
                     msg = json.loads(msg)
                     print(msg)
-                except Exception as e:
-                    print(str(e))
+                    if msg['action'] in self.ACTIONS:
+                        method = getattr(self, self.ACTIONS[msg['action']])
+                        player_id = self.players.index(ws)
+                        ret, to_all = method(player_id, msg['data'])
+                        print("ret: ", ret)
+                        if to_all:
+                            for p in self.players:
+                                p.send(ret)
+                        else:
+                            ws.send(ret)
+                else:
                     break
-                if msg['action'] in self.ACTIONS:
-                    method = getattr(self, self.ACTIONS[msg['action']])
-                    index = self.players.index(ws)
-                    ret, to_all = method(index, msg['data'])
-                    if to_all:
-                        for p in self.players:
-                            p.send(ret)
-                    else:
-                        ws.send(ret)
-            else: break
-        self.players.remove(ws)
+            except Exception as e:
+                print("got Exception: ", str(e))
+                break
+        print("Game Over...")
+        self.players.clear()
 
     def route(self, uri, method, handler, apply=None):
         def handler_trap_exception(*args, **kwargs):
@@ -80,8 +85,8 @@ class BottleServer(Server):
                 return response
             except Exception as e:
                 raise
+
         bottle.route(uri, method, handler_trap_exception, apply=apply)
 
     def run(self):
         bottle.run(host=self.ip, port=self.port, server=GeventWebSocketServer)
-

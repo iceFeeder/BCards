@@ -12,7 +12,7 @@ GAME_MAP = {
 class Server(object):
     ACTIONS = {
         'get': 'get_cards',
-        'put': 'show_cards',
+        'put': 'ready',
         'post': 'post_cards',
     }
 
@@ -29,29 +29,32 @@ class Server(object):
         self.port = port
         self.gcore = GAME_MAP[game]()
         self.players = []
+        self.ok = set()
         self.shuffle()
 
-    def show_cards(self, cards):
-        if self.gcore.check(cards):
-            return json.dumps(cards), True
-        else:
-            return constant.CHECK_FAIL, False
+    def pre_check(self):
+        return len(self.players) < self.gcore.max_players
 
-    def get_cards(self, index, data=None):
-        response = {}
-        response['cards'] = self.gcore.get_cards(index)
-        response['type'] = "poker"
-        response['index'] = index
+    def ready(self, player_id, data=None):
+        self.ok.add(player_id)
+        response = {"type": "ready", "start": False}
+        if len(self.ok) == len(self.players) and len(self.ok) != 1:
+            response['start'] = True
+            return json.dumps(response), True
         return json.dumps(response), False
 
-    def post_cards(self, index, data):
-        response = {}
-        response['type'] = "post"
-        response['index'] = index
-        if self.gcore.check(data):
-            response['postCards'] = data['cards']
+    def get_cards(self, player_id, data=None):
+        response = {'cards': self.gcore.get_cards(player_id),
+                    'type': "init", 'player_id': player_id}
+        return json.dumps(response), False
+
+    def post_cards(self, player_id, data):
+        response = {'type': "play", 'player_id': player_id}
+        play_cards = data['playCards']
+        if self.gcore.check(play_cards):
+            response['playCards'] = data['playCards']
             return json.dumps(response), True
-        response['postCards'] = constant.CHECK_FAIL
+        response['playCards'] = []
         return json.dumps(response), False
 
     def shuffle(self):
@@ -60,6 +63,9 @@ class Server(object):
     def deal(self, id=0):
         ret, to_all = self.get_cards(id)
         return ret
+
+    def reset(self):
+        self.gcore.reset()
 
     @abc.abstractmethod
     def run(self):

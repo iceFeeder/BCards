@@ -7,11 +7,12 @@ var $topbar = document.getElementById('topbar')
 
 var $poker = document.createElement('button')
 var $play = document.createElement('button')
+var $ready = document.createElement('button')
 
-$poker.textContent = 'Poker'
+$ready.textContent = 'Ready'
 $play.textContent = 'Play'
 
-$topbar.appendChild($poker)
+$topbar.appendChild($ready)
 $topbar.appendChild($play)
 
 var deck;
@@ -20,26 +21,37 @@ var deck;
 if (!window.WebSocket && window.MozWebSocket) {
   window.WebSocket = window.MozWebSocket;
 }
-var ws = new WebSocket('ws://127.0.0.1:8080/websocket');
+var ws = new WebSocket('ws://192.168.0.110:8080/websocket');
+var player_id;
 
 ws.onopen = function(evt) {
   var msg ={};
   msg.action = "get"
-  msg.data = "None"
+  msg.data = ""
   msg = JSON.stringify(msg)
   ws.send(msg);
 }
+
 ws.onmessage = function(evt) {
   var data = JSON.parse(evt.data);
-  if(data.type == "poker"){
-    deck =  Deck(data.cards)
-    deck.pos = data.index
+  if(data.type == "init") {
+    deck = Deck(data.cards)
+    player_id = data.player_id
     deck.mount($container)
-  }else if(data.type == "post"){
-    console.log(data.postCards)
-    if (data.postCards != "check_fail") {
-      deck.prePost = data.postCards
-      if (deck.pos == data.index) {
+  }
+  else if (data.type == "ready") {
+    console.log(data.start)
+    if (data.start) {
+      deck.cards.sort(function (a, b) {
+        return a.rank - b.rank;
+      });
+      deck.poker()
+    }
+  }
+  else if (data.type == "play") {
+    console.log(data.playCards)
+    if (data.playCards) {
+      if (player_id == data.player_id) {
         deck.playPost()
       }
       deck.showCards(data)
@@ -47,22 +59,23 @@ ws.onmessage = function(evt) {
   }
 }
 
+$ready.addEventListener('click', function() {
+  var msg = {}
+  msg.action = "put"
+  msg.data = ""
+  msg = JSON.stringify(msg)
+  ws.send(msg);
+})
+
 $play.addEventListener('click', function() {
   deck.play()
   var data = {}
-  data.cards = deck.post
-  data.pre_post = deck.prePost
+  data.playCards = deck.playCards
 
   var msg = {}
   msg.action = "post"
   msg.data = data
   msg = JSON.stringify(msg);
   ws.send(msg);
-})
-$poker.addEventListener('click', function () {
-  deck.cards.sort(function (a, b) {
-    return a.rank - b.rank;
-  });
-  deck.poker()
 })
 

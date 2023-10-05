@@ -160,7 +160,7 @@ var Deck = (function () {
     return window.getComputedStyle(document.body).getPropertyValue('font-size').slice(0, -2);
   }
 
-  var __fontSize;
+  var _fontSize = fontSize();
 
   var poker = {
     deck: function deck(_deck4) {
@@ -170,7 +170,6 @@ var Deck = (function () {
         var cards = _deck4.cards;
         var len = cards.length;
 
-        __fontSize = fontSize();
 
         cards.forEach(function (card, i) {
           card.poker(i, len, function (i) {
@@ -188,15 +187,13 @@ var Deck = (function () {
       _card4.poker = function (i, len, cb) {
         var delay = i * 250;
         $el.style.zIndex = len - 1 + i;
-        _card4.x = Math.round((i - 2.05) * 10 * __fontSize / 16);
-        _card4.y = Math.round(-110 * __fontSize / 16)+300;
+        _card4.x = Math.round((i - 2.05) * 10 * _fontSize / 16);
+        _card4.y = Math.round(-110 * _fontSize / 16)+300;
         $el.style[transform] = translate(_card4.x + 'px', _card4.y + 'px');
         cb(i);
       };
     }
   };
-
-  var ___fontSize;
 
   var playPost = {
     deck:function deck(_deck5){
@@ -214,8 +211,6 @@ var Deck = (function () {
         });
 
         _deck5.cards = remain
-
-        ___fontSize = fontSize();
 
         select.forEach(function (card, i) {
           card.unmount()
@@ -236,20 +231,11 @@ var Deck = (function () {
     card:function card(_card5){
       var $el = _card5.$el;
       _card5.playPost = function (i,len, cb) {
-        _card5.animateTo({
-          delay: 0,
-          duration: 250,
-
-          x: Math.round((i - 2.05) * 10 * ___fontSize / 16),
-          y: Math.round(-110 * ___fontSize / 16)+300,
-          rot: 0,
-          onStart: function onStart() {
-            $el.style.zIndex = len - 1 + i;
-          },
-          onComplete: function onComplete() {
-            cb(i);
-          }
-        });
+        $el.style.zIndex = len - 1 + i;
+        _card5.x = Math.round((i - 2.05) * 10 * _fontSize / 16);
+        _card5.y = Math.round(-110 * _fontSize / 16)+300;
+        $el.style[transform] = translate(_card5.x + 'px', _card5.y + 'px');
+        cb(i);
       };
     }
   }
@@ -265,19 +251,17 @@ var Deck = (function () {
             select.push(card.i)
           }
         });
-        _deck6.post = select
+        _deck6.playCards = select
         next()
       }
     },
   }
 
-  var ____fontSize;
-
   var showCards = {
     deck:function deck(_deck7){
       _deck7.showCards = _deck7.queued(showCards);
       function showCards(next, data){
-        var _cards = data.postCards;
+        var _cards = data.playCards;
         var len = _cards.length;
         var cards = new Array(len);
 
@@ -287,8 +271,6 @@ var Deck = (function () {
           card.setSide('front');
           card.mount(_deck7.$el);
         }
-
-        ____fontSize = fontSize();
 
         cards.forEach(function (card,i) {
           card.showCards(i, cards.length, data.index, function (){
@@ -302,20 +284,11 @@ var Deck = (function () {
     card:function card(_card7){
       var $el = _card7.$el;
       _card7.showCards = function (i,len,index, cb) {
-        _card7.animateTo({
-          delay: 0,
-          duration: 250,
-
-          x: Math.round((i - 2.05) * 10 * ____fontSize / 16),
-          y: -200,
-          rot: 0,
-          onStart: function onStart() {
-            $el.style.zIndex = len - 1 + i;
-          },
-          onComplete: function onComplete() {
-            cb(i);
-          }
-        });
+        $el.style.zIndex = len - 1 + i;
+        _card7.x = Math.round((i - 2.05) * 10 * _fontSize / 16);
+        _card7.y = -200;
+        $el.style[transform] = translate(_card7.x + 'px', _card7.y + 'px');
+        cb(i);
       };
     }
   }
@@ -424,7 +397,7 @@ var Deck = (function () {
     var __cards = data;
     var cards = new Array(__cards.length);
     var $el = createElement('div');
-    var self = observable({ mount: mount, unmount: unmount, cards: cards, $el: $el, prePost: [] });
+    var self = observable({ mount: mount, unmount: unmount, cards: cards, $el: $el});
     var $root;
 
     var modules = Deck.modules;

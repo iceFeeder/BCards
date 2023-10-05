@@ -17,19 +17,20 @@ class CardsPool(object):
         count = 0
         length = len(self.pool)
         while count < length:
-            self._swap(count, int(random.random() * (count+1)))
+            self._swap(count, random.randint(0, length-1))
             count += 1
         return self.pool
 
     def get_pool(self):
         return self.pool
 
+    @abc.abstractmethod
     def get_cards(self, index=0):
-        return self.pool[int(index)::4]
-
-    def check(self, data):
-        return self.check_cards(data)
+        raise NotImplementedError
 
     @abc.abstractmethod
-    def check_cards(self, data):
+    def check(self, play_cards):
         raise NotImplementedError
+
+    def reset(self):
+        self.shuffle()

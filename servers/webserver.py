@@ -6,9 +6,9 @@ urls = (
     '/index/(.*)', 'WebServer'
 )
 
-class WebServer(Server):
 
-    def GET(self,index):
+class WebServer(Server):
+    def GET(self, index):
         return Server.get_cards(index)
 
     def run(self):
