@@ -3,60 +3,68 @@ import bottle
 from bottle.ext.websocket import GeventWebSocketServer, websocket
 import json
 
+
 @bottle.error(400)
 def error_400(err):
     return err.body
+
 
 @bottle.error(403)
 def error_403(err):
     return err.body
 
+
 @bottle.error(404)
 def error_404(err):
     return err.body
+
 
 @bottle.error(409)
 def error_409(err):
     return err.body
 
+
 @bottle.error(500)
 def error_500(err):
     return err.body
+
 
 @bottle.error(503)
 def error_503(err):
     return err.body
 
+
 class BottleServer(Server):
     def __new__(cls, *args, **kwargs):
         obj = super(BottleServer, cls).__new__(cls, *args, **kwargs)
-        obj.route('/websocket','GET',obj.connection,apply=[websocket])
+        obj.route('/websocket', 'GET', obj.connection, apply=[websocket])
         return obj
 
     def index(self):
         return bottle.template('./ui/index')
 
-    def load_static(self,filename):
+    def load_static(self, filename):
         return bottle.static_file(filename, root='./ui/')
 
-    def load_img(self,img):
+    def load_img(self, img):
         return bottle.static_file(img, root='./ui/faces/')
 
-    def connection(self,ws):
+    def connection(self, ws):
         self.players.append(ws)
+        print("players: ", self.players)
         while True:
             msg = ws.receive()
             if msg is not None:
                 try:
                     msg = json.loads(msg)
-                    print msg
+                    print(msg)
                 except Exception as e:
-                    print e.message
+                    print(str(e))
                     break
                 if msg['action'] in self.ACTIONS:
-                    method = getattr(self,self.ACTIONS[msg['action']])
+                    method = getattr(self, self.ACTIONS[msg['action']])
                     index = self.players.index(ws)
-                    ret, to_all = method(index,msg['data'])
+                    ret, to_all = method(index, msg['data'])
                     if to_all:
                         for p in self.players:
                             p.send(ret)
@@ -65,7 +73,7 @@ class BottleServer(Server):
             else: break
         self.players.remove(ws)
 
-    def route(self, uri, method, handler,apply = None):
+    def route(self, uri, method, handler, apply=None):
         def handler_trap_exception(*args, **kwargs):
             try:
                 response = handler(*args, **kwargs)
@@ -75,5 +83,5 @@ class BottleServer(Server):
         bottle.route(uri, method, handler_trap_exception, apply=apply)
 
     def run(self):
-        bottle.run(host=self.ip,port=self.port,server=GeventWebSocketServer)
+        bottle.run(host=self.ip, port=self.port, server=GeventWebSocketServer)
 

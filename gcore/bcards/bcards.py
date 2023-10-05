@@ -1,15 +1,16 @@
 from cardspool import CardsPool
 from gcore.bcards.bcard import BCard
 
+
 class BCards(CardsPool):
     def __init__(self):
-        super(BCards,self).__init__(size=52)
+        super(BCards, self).__init__(size=52)
 
-    def check_cards(self,data):
-        print data
-        pre , post = data['pre_post'], data['cards']
+    def check_cards(self, data):
+        print(data)
+        pre, post = data['pre_post'], data['cards']
 
-        if pre!=[] and (len(pre) != len(post)):
+        if pre and (len(pre) != len(post)):
             return False
         pre_val = self._get_priority(pre)
         post_val = self._get_priority(post)
@@ -19,8 +20,8 @@ class BCards(CardsPool):
 
     def _get_priority(self,cards):
         num = len(cards)
-        if num > 5 : return -1
-        if num == 0 : return 0
+        if num > 5: return -1
+        if num == 0: return 0
 
         sorted(cards,key=lambda card:card % 13)
 

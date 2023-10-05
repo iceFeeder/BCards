@@ -5,20 +5,16 @@ var translate = Deck.translate
 var $container = document.getElementById('container')
 var $topbar = document.getElementById('topbar')
 
-var $sort = document.createElement('button')
 var $poker = document.createElement('button')
 var $play = document.createElement('button')
 
-$sort.textContent = 'Sort'
 $poker.textContent = 'Poker'
 $play.textContent = 'Play'
 
 $topbar.appendChild($poker)
-$topbar.appendChild($sort)
 $topbar.appendChild($play)
 
 var deck;
-var sortType = 0;
 
 // create WebSocket connection
 if (!window.WebSocket && window.MozWebSocket) {
@@ -51,9 +47,6 @@ ws.onmessage = function(evt) {
   }
 }
 
-$sort.addEventListener('click', function () {
-  deck.sort()
-})
 $play.addEventListener('click', function() {
   deck.play()
   var data = {}
@@ -67,16 +60,9 @@ $play.addEventListener('click', function() {
   ws.send(msg);
 })
 $poker.addEventListener('click', function () {
-  deck.queue(function (next) {
-    deck.cards.forEach(function (card, i) {
-      setTimeout(function () {
-        card.setSide('back')
-      }, i * 7.5)
-    })
-    next()
-  })
-  deck.sort(sortType)
-  sortType ^= 1
+  deck.cards.sort(function (a, b) {
+    return a.rank - b.rank;
+  });
   deck.poker()
 })
 

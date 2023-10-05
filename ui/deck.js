@@ -3,87 +3,6 @@
 var Deck = (function () {
   'use strict';
 
-  var ticking;
-  var animations = [];
-
-  function animationFrames(delay, duration) {
-    var now = Date.now();
-
-    // calculate animation start/end times
-    var start = now + delay;
-    var end = start + duration;
-
-    var animation = {
-      start: start,
-      end: end
-    };
-
-    // add animation
-    animations.push(animation);
-
-    if (!ticking) {
-      // start ticking
-      ticking = true;
-      requestAnimationFrame(tick);
-    }
-    var self = {
-      start: function start(cb) {
-        // add start callback (just one)
-        animation.startcb = cb;
-        return self;
-      },
-      progress: function progress(cb) {
-        // add progress callback (just one)
-        animation.progresscb = cb;
-        return self;
-      },
-      end: function end(cb) {
-        // add end callback (just one)
-        animation.endcb = cb;
-        return self;
-      }
-    };
-    return self;
-  }
-
-  function tick() {
-    var now = Date.now();
-
-    if (!animations.length) {
-      // stop ticking
-      ticking = false;
-      return;
-    }
-
-    for (var i = 0, animation; i < animations.length; i++) {
-      animation = animations[i];
-      if (now < animation.start) {
-        // animation not yet started..
-        continue;
-      }
-      if (!animation.started) {
-        // animation starts
-        animation.started = true;
-        animation.startcb && animation.startcb();
-      }
-      // animation progress
-      var t = (now - animation.start) / (animation.end - animation.start);
-      animation.progresscb && animation.progresscb(t < 1 ? t : 1);
-      if (now > animation.end) {
-        // animation ended
-        animation.endcb && animation.endcb();
-        animations.splice(i--, 1);
-        continue;
-      }
-    }
-    requestAnimationFrame(tick);
-  }
-
-  // fallback
-  window.requestAnimationFrame || (window.requestAnimationFrame = function (cb) {
-    setTimeout(cb, 0);
-  });
-
   var style = document.createElement('p').style;
   var memoized = {};
 
@@ -110,48 +29,13 @@ var Deck = (function () {
     }
   }
 
-  var has3d;
-
-  function translate(a, b, c) {
-    typeof has3d !== 'undefined' || (has3d = check3d());
-
-    c = c || 0;
-
-    if (has3d) {
-      return 'translate3d(' + a + ', ' + b + ', ' + c + ')';
-    } else {
-      return 'translate(' + a + ', ' + b + ')';
-    }
-  }
-
-  function check3d() {
-    // I admit, this line is stealed from the great Velocity.js!
-    // http://julian.com/research/velocity/
-    var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-    if (!isMobile) {
-      return false;
-    }
-
-    var transform = prefix('transform');
-    var $p = document.createElement('p');
-
-    document.body.appendChild($p);
-    $p.style[transform] = 'translate3d(1px,1px,1px)';
-
-    has3d = $p.style[transform];
-    has3d = has3d != null && has3d.length && has3d !== 'none';
-
-    document.body.removeChild($p);
-
-    return has3d;
+  function translate(a, b) {
+    return 'translate(' + a + ', ' + b + ')';
   }
 
   function createElement(type) {
     return document.createElement(type);
   }
-
-  var maxZ = 52;
 
   function _card(i) {
     var transform = prefix('transform');
@@ -199,47 +83,6 @@ var Deck = (function () {
       addModule(modules[module]);
     }
 
-    self.animateTo = function (params) {
-      var delay = params.delay;
-      var duration = params.duration;
-      var _params$x = params.x;
-      var x = _params$x === undefined ? self.x : _params$x;
-      var _params$y = params.y;
-      var y = _params$y === undefined ? self.y : _params$y;
-      var _params$rot = params.rot;
-      var rot = _params$rot === undefined ? self.rot : _params$rot;
-      var ease$$ = params.ease;
-      var onStart = params.onStart;
-      var onProgress = params.onProgress;
-      var onComplete = params.onComplete;
-
-      var startX, startY, startRot;
-      var diffX, diffY, diffRot;
-
-      animationFrames(delay, duration).start(function () {
-        startX = self.x || 0;
-        startY = self.y || 0;
-        startRot = self.rot || 0;
-        onStart && onStart();
-      }).progress(function (t) {
-        var et = ease[ease$$ || 'cubicInOut'](t);
-
-        diffX = x - startX;
-        diffY = y - startY;
-        diffRot = rot - startRot;
-
-        onProgress && onProgress(t, et);
-
-        self.x = startX + diffX * et;
-        self.y = startY + diffY * et;
-        self.rot = startRot + diffRot * et;
-
-        $el.style[transform] = translate(self.x + 'px', self.y + 'px') + (diffRot ? 'rotate(' + self.rot + 'deg)' : '');
-      }).end(function () {
-        onComplete && onComplete();
-      });
-    };
-
     // set rank & suit
     self.setRankSuit = function (rank, suit) {
       var suitName = SuitName(suit);
@@ -264,8 +107,7 @@ var Deck = (function () {
         pos = -10;
       }
       self.isSelected = !self.isSelected;
-      $el.style[transform] = translate(self.x + 'px', Math.round(self.y + pos) + 'px') + (self.rot ? ' rotate(' + self.rot + 'deg)' : '');
-      //$el.style.zIndex = maxZ++;
+      $el.style[transform] = translate(self.x + 'px', Math.round(self.y + pos) + 'px');
     }
 
     function mount(target) {
@@ -314,109 +156,6 @@ var Deck = (function () {
     target.removeEventListener(name, listener);
   }
 
-  var ease = {
-    linear: function linear(t) {
-      return t;
-    },
-    quadIn: function quadIn(t) {
-      return t * t;
-    },
-    quadOut: function quadOut(t) {
-      return t * (2 - t);
-    },
-    quadInOut: function quadInOut(t) {
-      return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-    },
-    cubicIn: function cubicIn(t) {
-      return t * t * t;
-    },
-    cubicOut: function cubicOut(t) {
-      return --t * t * t + 1;
-    },
-    cubicInOut: function cubicInOut(t) {
-      return t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
-    },
-    quartIn: function quartIn(t) {
-      return t * t * t * t;
-    },
-    quartOut: function quartOut(t) {
-      return 1 - --t * t * t * t;
-    },
-    quartInOut: function quartInOut(t) {
-      return t < 0.5 ? 8 * t * t * t * t : 1 - 8 * --t * t * t * t;
-    },
-    quintIn: function quintIn(t) {
-      return t * t * t * t * t;
-    },
-    quintOut: function quintOut(t) {
-      return 1 + --t * t * t * t * t;
-    },
-    quintInOut: function quintInOut(t) {
-      return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t;
-    }
-  };
-
-
-  var sort = {
-    deck: function deck(_deck2) {
-      _deck2.sort = _deck2.queued(sort);
-
-      function sort(next, type) {
-        var cards = _deck2.cards;
-
-        cards.sort(function (a, b) {
-          if (type == 1){
-            return a.i - b.i
-          }else {
-            return a.rank - b.rank;
-          }
-        });
-
-        cards.forEach(function (card, i) {
-          card.sort(i, cards.length, function (i) {
-            if (i === cards.length - 1) {
-              next();
-            }
-          }, type);
-        });
-      }
-    },
-    card: function card(_card2) {
-      var $el = _card2.$el;
-
-      _card2.sort = function (i, len, cb, type) {
-        var z = i / 4;
-        var delay = i * 10;
-
-        _card2.animateTo({
-          delay: delay,
-          duration: 400,
-
-          x: -z,
-          y: -150,
-          rot: 0,
-
-          onComplete: function onComplete() {
-            $el.style.zIndex = i;
-          }
-        });
-
-        _card2.animateTo({
-          delay: delay + 500,
-          duration: 400,
-
-          x: -z,
-          y: -z,
-          rot: 0,
-
-          onComplete: function onComplete() {
-            cb(i);
-          }
-        });
-      };
-    }
-  };
-
   function fontSize() {
     return window.getComputedStyle(document.body).getPropertyValue('font-size').slice(0, -2);
   }
@@ -448,22 +187,11 @@ var Deck = (function () {
 
       _card4.poker = function (i, len, cb) {
         var delay = i * 250;
-
-        _card4.animateTo({
-          delay: delay,
-          duration: 250,
-
-          x: Math.round((i - 2.05) * 10 * __fontSize / 16),
-          y: Math.round(-110 * __fontSize / 16)+300,
-          rot: 0,
-
-          onStart: function onStart() {
-            $el.style.zIndex = len - 1 + i;
-          },
-          onComplete: function onComplete() {
-            cb(i);
-          }
-        });
+        $el.style.zIndex = len - 1 + i;
+        _card4.x = Math.round((i - 2.05) * 10 * __fontSize / 16);
+        _card4.y = Math.round(-110 * __fontSize / 16)+300;
+        $el.style[transform] = translate(_card4.x + 'px', _card4.y + 'px');
+        cb(i);
       };
     }
   };
@@ -736,9 +464,7 @@ var Deck = (function () {
       module.deck && module.deck(self);
     }
   }
-  Deck.animationFrames = animationFrames;
-  Deck.ease = ease;
-  Deck.modules = { poker: poker, sort: sort, play: play, playPost: playPost, showCards: showCards};
+  Deck.modules = { poker: poker, play: play, playPost: playPost, showCards: showCards};
   Deck.Card = _card;
   Deck.prefix = prefix;
   Deck.translate = translate;

@@ -1,10 +1,11 @@
 import random
 import abc
 
+
 class CardsPool(object):
-    def __init__(self,size):
+    def __init__(self, size):
         self.pool = []
-        for i in xrange(size):
+        for i in range(size):
             self.pool.append(i)
 
     def _swap(self, i, j):
@@ -23,12 +24,12 @@ class CardsPool(object):
     def get_pool(self):
         return self.pool
 
-    def get_cards(self,index = 0):
+    def get_cards(self, index=0):
         return self.pool[int(index)::4]
 
-    def check(self,data):
+    def check(self, data):
         return self.check_cards(data)
 
     @abc.abstractmethod
-    def check_cards(data):
+    def check_cards(self, data):
         raise NotImplementedError
