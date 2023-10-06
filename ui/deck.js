@@ -275,8 +275,8 @@ var Deck = (function () {
       var $el = _card7.$el;
       _card7.showCards = function (i,len, cb) {
         $el.style.zIndex = len - 1 + i;
-        _card7.x = Math.round((i + 50.5) * 10 * _fontSize / 16);
-        _card7.y = 233;
+        _card7.x = Math.round((i - 2.05) * 10 * _fontSize / 16);
+        _card7.y = -200;
         $el.style[transform] = translate(_card7.x + 'px', _card7.y + 'px');
         cb(i);
       };

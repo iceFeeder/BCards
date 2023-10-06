@@ -1,7 +1,8 @@
 import abc
 
 from gcore.bcards.bcards import BCards
-import random
+import constant
+import copy
 
 GAME_MAP = {
     'BCards': BCards
@@ -22,48 +23,51 @@ class Server(object):
         self.port = port
         self.gcore = GAME_MAP[game]()
         self.players = []
-        self.cur_player = None
-        self.player_num = None
-        self.ok = set()
         self.shuffle()
 
     def pre_check(self):
         return len(self.players) < self.gcore.max_players
 
     def pass_turn(self, player_id, data=None):
-        if player_id != self.cur_player:
+        if player_id != self.gcore.cur_player or player_id == self.gcore.pre_player:
             return {}, False
-        self.cur_player = (self.cur_player + 1) % self.player_num
-        self.gcore.clear()
-        return {"type": "pass", 'cur_player_id': self.cur_player}, True
+        self.gcore.update_player()
+        self.gcore.clear_pre_status()
+        return {"type": "pass", 'cur_player_id': self.gcore.cur_player}, constant.TO_ALL
 
     def ready(self, player_id, data=None):
-        self.ok.add(player_id)
-        response = {"type": "ready", "start": False}
-        if len(self.ok) == len(self.players) and len(self.ok) != 1:
-            response['start'] = True
-            self.cur_player = random.randint(0, len(self.ok) - 1)
-            self.player_num = len(self.ok)
-            response['cur_player_id'] = self.cur_player
-            return response, True
-        return {}, False
+        res = {"type": "ready", "start": False}
+        if self.gcore.ready(player_id, self.players):
+            res['start'] = True
+            res['cur_player_id'] = self.gcore.cur_player
+            response = {}
+            for i in range(len(self.players)):
+                response[i] = copy.copy(res)
+                response[i]['cards'] = self.gcore.get_cards(i)
+                response[i]['player_id'] = i
+            return response, constant.DISPATCH
+        return {}, None
 
     def get_cards(self, player_id, data=None):
         response = {'cards': self.gcore.get_cards(player_id),
                     'type': "init", 'player_id': player_id}
-        return response, False
+        return response, None
 
     def post_cards(self, player_id, data):
-        if player_id != self.cur_player:
-            return {'playCards': []}, False
+        if player_id != self.gcore.cur_player:
+            return {}, None
         response = {'type': "play", 'player_id': player_id}
         play_cards = data['playCards']
-        if self.gcore.check(play_cards):
+        if self.gcore.check(play_cards, player_id):
             response['playCards'] = data['playCards']
-            self.cur_player = (self.cur_player + 1) % self.player_num
-            response['cur_player_id'] = self.cur_player
-            return response, True
-        return {}, False
+            self.gcore.update_player()
+            response['cur_player_id'] = self.gcore.cur_player
+            over = self.gcore.game_over()
+            if over >= 0:
+                response['winner'] = over
+                self.gcore.reset()
+            return response, constant.TO_ALL
+        return {}, None
 
     def shuffle(self):
         self.gcore.shuffle()

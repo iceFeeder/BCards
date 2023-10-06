@@ -13,6 +13,6 @@ class WebServer(Server):
 
     def run(self):
         sys.argv[1:] = [self.ip+":"+str(self.port)]
-        app = web.application(urls,{'WebServer': WebServer})
+        app = web.application(urls, {'WebServer': WebServer})
         app.run()
 

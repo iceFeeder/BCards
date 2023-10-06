@@ -2,6 +2,7 @@ from server import Server
 import bottle
 from bottle.ext.websocket import GeventWebSocketServer, websocket
 import json
+import constant
 
 
 @bottle.error(400)
@@ -66,8 +67,11 @@ class BottleServer(Server):
                     print("ret: ", ret)
                     if ret:
                         if to_all:
-                            for p in self.players:
-                                p.send(json.dumps(ret))
+                            for i in range(len(self.players)):
+                                if to_all == constant.TO_ALL:
+                                    self.players[i].send(json.dumps(ret))
+                                elif to_all == constant.DISPATCH:
+                                    self.players[i].send(json.dumps(ret[i]))
                         else:
                             ws.send(json.dumps(ret))
                 else:

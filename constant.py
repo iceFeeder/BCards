@@ -1,1 +1,2 @@
-CHECK_FAIL = "check_fail"
+TO_ALL = "TO_ALL"
+DISPATCH = "DISPATCH"

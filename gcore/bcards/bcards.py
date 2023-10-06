@@ -1,7 +1,7 @@
 from cardspool import CardsPool
 from gcore.bcards.bcard import BCard
 from card import Cards, CardsType
-
+import random
 
 class BCards(CardsPool):
     def __init__(self):
@@ -9,10 +9,35 @@ class BCards(CardsPool):
         self.pre_cards = None
         self.cur_cards = None
         self.max_players = 4
+        self.cur_player = None
+        self.player_num = None
+        self.pre_player = None
+        self.player_cards = None
+        self.ok = set()
+
+    def update_player(self):
+        self.pre_player = self.cur_player
+        self.cur_player = (self.cur_player + 1) % self.player_num
 
     def get_cards(self, index=0):
         index = int(index) % 4
         return self.pool[index::4]
+
+    def ready(self, player_id, players):
+        self.ok.add(player_id)
+        if len(self.ok) == len(players) and len(self.ok) != 1:
+            self.cur_player = random.randint(0, len(self.ok) - 1)
+            self.player_num = len(self.ok)
+            self.player_cards = [13] * self.player_num
+            return True
+        return False
+
+    def game_over(self):
+        print("player cards: ", self.player_cards)
+        for i in range(len(self.player_cards)):
+            if self.player_cards[i] == 0:
+                return i
+        return -1
 
     def is_valid(self, cards):
         num = len(cards)
@@ -25,6 +50,7 @@ class BCards(CardsPool):
             cs.values[c.val] += 1
             cs.suits[c.suit] += 1
             cs.num += 1
+        print("cs.cards: ", cs.cards)
         if cs.num < 5:
             if len(cs.values) != 1:
                 return False
@@ -64,7 +90,7 @@ class BCards(CardsPool):
         self.cur_cards = cs
         return True
 
-    def check(self, play_cards):
+    def check(self, play_cards, player_id):
         print(self.pre_cards, play_cards)
         if not self.is_valid(play_cards):
             return False
@@ -78,14 +104,23 @@ class BCards(CardsPool):
         if ret:
             self.pre_cards = self.cur_cards
             self.cur_cards = None
-        print("OK", self.pre_cards)
+            self.player_cards[player_id] -= len(play_cards)
         return ret
 
     def reset(self):
         self.clear()
         super(BCards, self).reset()
 
+    def clear_pre_status(self):
+        self.pre_cards = None
+
     def clear(self):
         self.pre_cards = None
+        self.cur_cards = None
+        self.cur_player = None
+        self.player_num = None
+        self.pre_player = None
+        self.player_cards = None
+        self.ok = set()
 
 

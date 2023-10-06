@@ -29,7 +29,7 @@ class CardsPool(object):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def check(self, play_cards):
+    def check(self, play_cards, player_id):
         raise NotImplementedError
 
     def reset(self):
