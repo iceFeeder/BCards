@@ -3,6 +3,7 @@ from gcore.bcards.bcard import BCard
 from card import Cards, CardsType
 import random
 
+
 class BCards(CardsPool):
     def __init__(self):
         super(BCards, self).__init__(size=52)
@@ -14,6 +15,13 @@ class BCards(CardsPool):
         self.pre_player = None
         self.player_cards = None
         self.ok = set()
+
+    def pass_player(self, player_id):
+        if player_id != self.cur_player or player_id == self.pre_player:
+            return False
+        self.pre_cards = None
+        self.cur_player = (self.cur_player + 1) % self.player_num
+        return True
 
     def update_player(self):
         self.pre_player = self.cur_player
@@ -50,7 +58,6 @@ class BCards(CardsPool):
             cs.values[c.val] += 1
             cs.suits[c.suit] += 1
             cs.num += 1
-        print("cs.cards: ", cs.cards)
         if cs.num < 5:
             if len(cs.values) != 1:
                 return False
@@ -72,7 +79,10 @@ class BCards(CardsPool):
                     cs.type = CardsType.Straight
                     cs.priority = BCard.PRIORITY_RANK[(start + 4) % 13]
                 if len(cs.suits) == 1:
-                    cs.type = CardsType.FlushStraight
+                    if cs.type == CardsType.Straight:
+                        cs.type = CardsType.FlushStraight
+                    else:
+                        cs.type = CardsType.Flush
                     cs.priority += (cs.cards[0].suit + 1) * 100
                 if cs.type is None:
                     return False
@@ -99,6 +109,8 @@ class BCards(CardsPool):
         if not self.pre_cards:
             ret = True
         else:
+            print("pre: ", self.pre_cards,
+                  "cur: ", self.cur_cards)
             ret = self.pre_cards.priority < self.cur_cards.priority
 
         if ret:
@@ -111,9 +123,6 @@ class BCards(CardsPool):
         self.clear()
         super(BCards, self).reset()
 
-    def clear_pre_status(self):
-        self.pre_cards = None
-
     def clear(self):
         self.pre_cards = None
         self.cur_cards = None
@@ -122,5 +131,3 @@ class BCards(CardsPool):
         self.pre_player = None
         self.player_cards = None
         self.ok = set()
-
-

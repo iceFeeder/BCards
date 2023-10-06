@@ -29,10 +29,8 @@ class Server(object):
         return len(self.players) < self.gcore.max_players
 
     def pass_turn(self, player_id, data=None):
-        if player_id != self.gcore.cur_player or player_id == self.gcore.pre_player:
-            return {}, False
-        self.gcore.update_player()
-        self.gcore.clear_pre_status()
+        if not self.gcore.pass_player(player_id):
+            return {}, None
         return {"type": "pass", 'cur_player_id': self.gcore.cur_player}, constant.TO_ALL
 
     def ready(self, player_id, data=None):
@@ -40,6 +38,7 @@ class Server(object):
         if self.gcore.ready(player_id, self.players):
             res['start'] = True
             res['cur_player_id'] = self.gcore.cur_player
+            res['player_cards'] = self.gcore.player_cards
             response = {}
             for i in range(len(self.players)):
                 response[i] = copy.copy(res)
@@ -60,6 +59,7 @@ class Server(object):
         play_cards = data['playCards']
         if self.gcore.check(play_cards, player_id):
             response['playCards'] = data['playCards']
+            response['player_cards'] = self.gcore.player_cards
             self.gcore.update_player()
             response['cur_player_id'] = self.gcore.cur_player
             over = self.gcore.game_over()

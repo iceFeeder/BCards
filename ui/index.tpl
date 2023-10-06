@@ -11,6 +11,7 @@
     <div id="container"></div>
     <div id="topbar"></div>
     <div id="bottombar"></div>
+    <div id="sysinfo"></div>
     <script src="/static/deck.js"></script>
     <script src="/static/ui.js"></script>
   </body>

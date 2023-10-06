@@ -12,7 +12,7 @@ class Card(object):
         self.suit = self.PRIORITY_SUIT[val // 13]
 
     def __str__(self):
-        return "(val: {}, suit: {}, rank: {})".format(self.val, self.suit, self.rank)
+        return "({}, {})".format(self.val, self.suit)
 
 
 class CardsType(IntEnum):
@@ -29,10 +29,12 @@ class Cards(object):
         self.values = defaultdict(int)
         self.suits = defaultdict(int)
         self.num = 0
-        self.type = None
+        self.type = CardsType.NoFive
         self.priority = 0
         self.cards = []
 
     def __str__(self):
-        return ' '.join(map(str, self.cards))
+        return ' '.join(map(str, self.cards)) + \
+               "\nPriority: " + str(self.priority) + \
+               "\nType: " + str(int(self.type))
 

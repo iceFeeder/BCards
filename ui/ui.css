@@ -42,12 +42,11 @@ body {
   -ms-transform: translate3d(-50%, -50%, 0);
   transform: translate3d(-50%, -50%, 0);
 }
-#rightbar {
+#sysinfo {
   position: fixed;
-  top: 0;
-  right: 0;
-  width: 20%;
-  background-color: #fff;
+  top: 10%;
+  left: 0;
+  width: 15%;
   padding: 0.25rem;
   text-align: left;
 }
