@@ -22,7 +22,7 @@ class BCards(CardsPool):
         for v in cards:
             c = BCard(v)
             cs.cards.append(c)
-            cs.values[c.rank] += 1
+            cs.values[c.val] += 1
             cs.suits[c.suit] += 1
             cs.num += 1
         if cs.num < 5:
@@ -87,4 +87,5 @@ class BCards(CardsPool):
 
     def clear(self):
         self.pre_cards = None
+
 

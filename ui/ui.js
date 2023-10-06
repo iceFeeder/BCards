@@ -4,6 +4,7 @@ var translate = Deck.translate
 
 var $container = document.getElementById('container')
 var $topbar = document.getElementById('topbar')
+var $discard = document.getElementById('discard')
 
 var $ready = document.createElement('button')
 var $play = document.createElement('button')
@@ -18,6 +19,7 @@ $topbar.appendChild($play)
 $topbar.appendChild($pass)
 
 var deck;
+var discardCards;
 
 // create WebSocket connection
 if (!window.WebSocket && window.MozWebSocket) {
@@ -40,11 +42,12 @@ ws.onmessage = function(evt) {
   if(data.type == "init") {
     deck = Deck(data.cards)
     player_id = data.player_id
-    deck.mount($container)
+
   }
   else if (data.type == "ready") {
     console.log(data.start)
     if (data.start) {
+      deck.mount($container)
       deck.cards.sort(function (a, b) {
         return a.rank - b.rank;
       });
@@ -61,7 +64,15 @@ ws.onmessage = function(evt) {
       if (player_id == data.player_id) {
         deck.playPost()
       }
-      deck.showCards(data)
+      if (discardCards) {
+        discardCards.unmount()
+      }
+      discardCards = Deck(data.playCards)
+      discardCards.mount($discard)
+      discardCards.cards.sort(function (a, b) {
+        return a.rank - b.rank;
+      });
+      discardCards.showCards()
     }
   }
   else if (data.type == "pass") {

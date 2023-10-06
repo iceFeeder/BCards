@@ -54,7 +54,7 @@ var Deck = (function () {
     var isSelected = false;
 
     // self = card
-    var self = { i: i, rank: rank, suit: suit, pos: i, $el: $el, mount: mount, unmount: unmount, setSide: setSide,isSelected:isSelected };
+    var self = { i: i, rank: rank, suit: suit, pos: i, $el: $el, mount: mount, unmount: unmount, setSide: setSide, isSelected:isSelected};
 
     var modules = Deck.modules;
     var module;
@@ -170,7 +170,6 @@ var Deck = (function () {
         var cards = _deck4.cards;
         var len = cards.length;
 
-
         cards.forEach(function (card, i) {
           card.poker(i, len, function (i) {
             card.setSide('front');
@@ -260,20 +259,11 @@ var Deck = (function () {
   var showCards = {
     deck:function deck(_deck7){
       _deck7.showCards = _deck7.queued(showCards);
-      function showCards(next, data){
-        var _cards = data.playCards;
-        var len = _cards.length;
-        var cards = new Array(len);
-
-        var card;
-        for (var i = _cards.length; i; i--){
-          card = cards[i - 1] = _card(_cards[i - 1]);
-          card.setSide('front');
-          card.mount(_deck7.$el);
-        }
-
+      function showCards(next){
+        var cards = _deck7.cards
         cards.forEach(function (card,i) {
-          card.showCards(i, cards.length, data.index, function (){
+          card.showCards(i, cards.length, function (){
+            card.setSide('front');
             if (i === cards.length - 1) {
               next();
             }
@@ -283,10 +273,10 @@ var Deck = (function () {
     },
     card:function card(_card7){
       var $el = _card7.$el;
-      _card7.showCards = function (i,len,index, cb) {
+      _card7.showCards = function (i,len, cb) {
         $el.style.zIndex = len - 1 + i;
-        _card7.x = Math.round((i - 2.05) * 10 * _fontSize / 16);
-        _card7.y = -200;
+        _card7.x = Math.round((i + 50.5) * 10 * _fontSize / 16);
+        _card7.y = 233;
         $el.style[transform] = translate(_card7.x + 'px', _card7.y + 'px');
         cb(i);
       };

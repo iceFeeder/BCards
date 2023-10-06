@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600|Ubuntu+Condensed" rel="stylesheet" type="text/css">
   </head>
   <body>
+    <div id="discard"></div>
     <div id="container"></div>
     <div id="topbar"></div>
     <script src="/static/deck.js"></script>
