@@ -39,6 +39,7 @@ class Server(object):
             res['start'] = True
             res['cur_player_id'] = self.gcore.cur_player
             res['player_cards'] = self.gcore.player_cards
+            res['player_scores'] = self.gcore.player_scores
             response = {}
             for i in range(len(self.players)):
                 response[i] = copy.copy(res)
@@ -63,6 +64,7 @@ class Server(object):
             self.gcore.update_player()
             response['cur_player_id'] = self.gcore.cur_player
             over = self.gcore.game_over()
+            response['player_scores'] = self.gcore.player_scores
             if over >= 0:
                 response['winner'] = over
                 self.gcore.reset()

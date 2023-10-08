@@ -15,6 +15,7 @@ class BCards(CardsPool):
         self.pre_player = None
         self.player_cards = None
         self.ok = set()
+        self.player_scores = None
 
     def pass_player(self, player_id):
         if player_id != self.cur_player or player_id == self.pre_player:
@@ -37,6 +38,8 @@ class BCards(CardsPool):
             self.cur_player = random.randint(0, len(self.ok) - 1)
             self.player_num = len(self.ok)
             self.player_cards = [13] * self.player_num
+            if self.player_scores is None:
+                self.player_scores = [0] * self.player_num
             return True
         return False
 
@@ -44,6 +47,8 @@ class BCards(CardsPool):
         print("player cards: ", self.player_cards)
         for i in range(len(self.player_cards)):
             if self.player_cards[i] == 0:
+                self.player_scores = list(map(lambda a: a[0] + (a[1] if a[1] < 10 else a[1] * 2),
+                                              zip(self.player_scores, self.player_cards)))
                 return i
         return -1
 
@@ -122,6 +127,9 @@ class BCards(CardsPool):
     def reset(self):
         self.clear()
         super(BCards, self).reset()
+
+    def reset_scores(self):
+        self.player_scores = None
 
     def clear(self):
         self.pre_cards = None

@@ -51,10 +51,10 @@ function game_start() {
   $bottombar.appendChild($playname)
 }
 
-function gen_players_info(player_cards) {
+function gen_players_info(player_cards, player_scores) {
   for (var i = 0; i < player_cards.length; ++i) {
     var $pinfo = document.createElement('div')
-    $pinfo.textContent = "Player" + i + ": " + player_cards[i]
+    $pinfo.textContent = "Player" + i + ": " + player_cards[i] + " -> " + player_scores[i]
     if (i == cur_player_id) {
       $pinfo.style.color = '#33cd3c'
     } else {
@@ -65,9 +65,9 @@ function gen_players_info(player_cards) {
   }
 }
 
-function update_players_info(player_cards) {
+function update_players_info(player_cards, player_scores) {
   for (var i = 0; i < player_cards.length; ++i) {
-    $playinfos[i].textContent = "Player" + i + ": " + player_cards[i]
+    $playinfos[i].textContent = "Player" + i + ": " + player_cards[i] + " -> " + player_scores[i]
     if (i == cur_player_id) {
       $playinfos[i].style.color = '#33cd3c'
     } else {
@@ -113,10 +113,6 @@ function game_over(winner) {
   $topbar.appendChild($ready)
   $topbar.removeChild($pass)
   $bottombar.removeChild($play)
-  for (var i = 0; i < $playinfos.length; ++i) {
-    $sysinfo.removeChild($playinfos[i])
-  }
-  $playinfos = []
 }
 
 function send_msg(action, data) {
@@ -139,7 +135,11 @@ ws.onmessage = function(evt) {
       cur_player_id = data.cur_player_id
       change_name_color()
       game_start()
-      gen_players_info(data.player_cards)
+      if ($playinfos.length == 0) {
+        gen_players_info(data.player_cards, data.player_scores)
+      } else {
+        update_players_info(data.player_cards, data.player_scores)
+      }
     }
   }
   else if (data.type == "play") {
@@ -151,7 +151,7 @@ ws.onmessage = function(evt) {
         deck.playPost()
       }
       discard_cards(data.playCards)
-      update_players_info(data.player_cards)
+      update_players_info(data.player_cards, data.player_scores)
       if (typeof data.winner !== 'undefined') {
         game_over(data.winner)
       }

@@ -82,6 +82,7 @@ class BottleServer(Server):
         print("Game Over...")
         self.reset()
         self.players.clear()
+        self.gcore.reset_scores()
 
     def route(self, uri, method, handler, apply=None):
         def handler_trap_exception(*args, **kwargs):
