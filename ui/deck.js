@@ -104,7 +104,7 @@ var Deck = (function () {
       e.preventDefault();
 
       if (!self.isSelected){
-        pos = -10;
+        pos = -20;
       }
       self.isSelected = !self.isSelected;
       $el.style[transform] = translate(self.x + 'px', Math.round(self.y + pos) + 'px');
@@ -186,8 +186,8 @@ var Deck = (function () {
       _card4.poker = function (i, len, cb) {
         var delay = i * 250;
         $el.style.zIndex = len - 1 + i;
-        _card4.x = Math.round((i - 2.05) * 10 * _fontSize / 16);
-        _card4.y = Math.round(-110 * _fontSize / 16)+300;
+        _card4.x = Math.round((i - len / 2) * 15 * _fontSize / 16);
+        _card4.y = Math.round(-110 * _fontSize / 16)+260;
         $el.style[transform] = translate(_card4.x + 'px', _card4.y + 'px');
         cb(i);
       };
@@ -231,8 +231,8 @@ var Deck = (function () {
       var $el = _card5.$el;
       _card5.playPost = function (i,len, cb) {
         $el.style.zIndex = len - 1 + i;
-        _card5.x = Math.round((i - 2.05) * 10 * _fontSize / 16);
-        _card5.y = Math.round(-110 * _fontSize / 16)+300;
+        _card5.x = Math.round((i - len / 2) * 15 * _fontSize / 16);
+        _card5.y = Math.round(-110 * _fontSize / 16)+260;
         $el.style[transform] = translate(_card5.x + 'px', _card5.y + 'px');
         cb(i);
       };
@@ -273,9 +273,9 @@ var Deck = (function () {
     },
     card:function card(_card7){
       var $el = _card7.$el;
-      _card7.showCards = function (i,len, cb) {
+      _card7.showCards = function (i, len, cb) {
         $el.style.zIndex = len - 1 + i;
-        _card7.x = Math.round((i - 2.05) * 10 * _fontSize / 16);
+        _card7.x = Math.round((i - len / 2) * 15 * _fontSize / 16);
         _card7.y = -200;
         $el.style[transform] = translate(_card7.x + 'px', _card7.y + 'px');
         cb(i);
