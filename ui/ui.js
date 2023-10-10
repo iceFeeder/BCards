@@ -11,14 +11,17 @@ var $sysinfo = document.getElementById('sysinfo')
 var $ready = document.createElement('button')
 var $play = document.createElement('button')
 var $pass = document.createElement('button')
+var $add_com = document.createElement('button')
 var $playname = document.createElement('div')
 var $playinfos = []
 
 $ready.textContent = 'Ready'
 $play.textContent = 'Play'
 $pass.textContent = 'Pass'
+$add_com.textContent = 'Add Computer'
 
 $topbar.appendChild($ready)
+$topbar.appendChild($add_com)
 $bottombar.appendChild($playname)
 
 var deck = null;
@@ -46,6 +49,7 @@ function game_start() {
     discardCards = null
   }
   $topbar.removeChild($ready)
+  $topbar.removeChild($add_com)
   $topbar.appendChild($pass)
   $bottombar.appendChild($play)
   $bottombar.appendChild($playname)
@@ -54,7 +58,7 @@ function game_start() {
 function gen_players_info(player_cards, player_scores) {
   for (var i = 0; i < player_cards.length; ++i) {
     var $pinfo = document.createElement('div')
-    $pinfo.textContent = "Player" + i + ": " + player_cards[i] + " -> " + player_scores[i]
+    $pinfo.textContent = "P" + i + "[" + player_cards[i]+ "]" + ": " + player_scores[i]
     if (i == cur_player_id) {
       $pinfo.style.color = '#33cd3c'
     } else {
@@ -67,7 +71,7 @@ function gen_players_info(player_cards, player_scores) {
 
 function update_players_info(player_cards, player_scores) {
   for (var i = 0; i < player_cards.length; ++i) {
-    $playinfos[i].textContent = "Player" + i + ": " + player_cards[i] + " -> " + player_scores[i]
+    $playinfos[i].textContent = "P" + i + "[" + player_cards[i]+ "]" + ": " + player_scores[i]
     if (i == cur_player_id) {
       $playinfos[i].style.color = '#33cd3c'
     } else {
@@ -126,9 +130,29 @@ function send_msg(action, data) {
 ws.onopen = function(evt) {
 }
 
+function update_players(data) {
+  players = data.players
+  for (var i = 0; i < players.length; ++i) {
+    if (i >= $playinfos.length) {
+      var $pinfo = document.createElement('div')
+      $playinfos.push($pinfo)
+      $sysinfo.appendChild($pinfo)
+    }
+    $playinfos[i].textContent = players[i].name
+    if (players[i].ready == 1) {
+      $playinfos[i].style.color = '#33cd3c'
+    } else {
+      $playinfos[i].style.color = '#333333'
+    }
+  }
+}
+
 ws.onmessage = function(evt) {
   var data = JSON.parse(evt.data);
-  if (data.type == "ready") {
+  if (data.type == "init") {
+    update_players(data)
+  }
+  else if (data.type == "ready") {
     if (data.start) {
       $bottombar.removeChild($playname)
       poker(data)
@@ -140,6 +164,8 @@ ws.onmessage = function(evt) {
       } else {
         update_players_info(data.player_cards, data.player_scores)
       }
+    } else {
+      update_players(data)
     }
   }
   else if (data.type == "play") {
@@ -175,6 +201,10 @@ $play.addEventListener('click', function() {
   var data = {}
   data.playCards = deck.playCards
   send_msg("post_cards", data)
+})
+
+$add_com.addEventListener('click', function() {
+  send_msg("add_com", "")
 })
 
 $pass.addEventListener('click', function() {

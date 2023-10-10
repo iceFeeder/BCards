@@ -3,6 +3,9 @@ import abc
 from gcore.bcards.bcards import BCards
 import constant
 import copy
+from gcore.player import *
+from gcore.bcards.AI import *
+import json
 
 GAME_MAP = {
     'BCards': BCards
@@ -28,6 +31,22 @@ class Server(object):
     def pre_check(self):
         return len(self.players) < self.gcore.max_players
 
+    def notify(self):
+        data = {"type": "init", "players": [p.covert2json() for p in self.players]}
+        for i in range(len(self.players)):
+            self.players[i].location.send(json.dumps(data))
+
+    def add_player(self, player_type, location):
+        if not self.pre_check():
+            return None
+        player_id = len(self.players)
+        player_name = "Player" + str(player_id)
+        player = Player(player_name, player_id, player_type, location)
+        self.players.append(player)
+        print(player_name + "enter.")
+        print("Players: ", self.players)
+        return player
+
     def pass_turn(self, player_id, data=None):
         if not self.gcore.pass_player(player_id):
             return {}, None
@@ -35,6 +54,7 @@ class Server(object):
 
     def ready(self, player_id, data=None):
         res = {"type": "ready", "start": False}
+        self.players[player_id].ready = 1
         if self.gcore.ready(player_id, self.players):
             res['start'] = True
             res['cur_player_id'] = self.gcore.cur_player
@@ -46,7 +66,8 @@ class Server(object):
                 response[i]['cards'] = self.gcore.get_cards(i)
                 response[i]['player_id'] = i
             return response, constant.DISPATCH
-        return {}, None
+        res['players'] = [p.covert2json() for p in self.players]
+        return res, constant.TO_ALL
 
     def get_cards(self, player_id, data=None):
         response = {'cards': self.gcore.get_cards(player_id),
@@ -70,6 +91,14 @@ class Server(object):
                 self.gcore.reset()
             return response, constant.TO_ALL
         return {}, None
+
+    def add_com(self, player_id, data):
+        player = self.add_player(PlayerType.Computer, None)
+        if not player:
+            return {}, None
+        computer = Computer(player, self)
+        player.set_location(computer)
+        return computer.ready()
 
     def shuffle(self):
         self.gcore.shuffle()
