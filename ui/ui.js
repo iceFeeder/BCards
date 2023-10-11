@@ -41,6 +41,13 @@ function change_name_color() {
   } else {
     $playname.style.color = '#fff'
   }
+  for (var i = 0; i < $playinfos.length; ++i) {
+    if (i == cur_player_id) {
+      $playinfos[i].style.color = '#33cd3c'
+    } else {
+      $playinfos[i].style.color = '#333333'
+    }
+  }
 }
 
 function game_start() {
@@ -49,7 +56,10 @@ function game_start() {
     discardCards = null
   }
   $topbar.removeChild($ready)
-  $topbar.removeChild($add_com)
+  if ($add_com != null) {
+    $topbar.removeChild($add_com)
+    $add_com = null
+  }
   $topbar.appendChild($pass)
   $bottombar.appendChild($play)
   $bottombar.appendChild($playname)
@@ -159,11 +169,7 @@ ws.onmessage = function(evt) {
       cur_player_id = data.cur_player_id
       change_name_color()
       game_start()
-      if ($playinfos.length == 0) {
-        gen_players_info(data.player_cards, data.player_scores)
-      } else {
-        update_players_info(data.player_cards, data.player_scores)
-      }
+      update_players_info(data.player_cards, data.player_scores)
     } else {
       update_players(data)
     }

@@ -2,6 +2,7 @@ from cardspool import CardsPool
 from gcore.bcards.bcard import BCard
 from card import Cards, CardsType
 import random
+from gcore.player import PlayerType
 
 
 class BCards(CardsPool):
@@ -20,7 +21,6 @@ class BCards(CardsPool):
     def pass_player(self, player_id):
         if player_id != self.cur_player or player_id == self.pre_player:
             return False
-        self.pre_cards = None
         self.cur_player = (self.cur_player + 1) % self.player_num
         return True
 
@@ -44,7 +44,6 @@ class BCards(CardsPool):
         return False
 
     def game_over(self):
-        print("player cards: ", self.player_cards)
         for i in range(len(self.player_cards)):
             if self.player_cards[i] == 0:
                 self.player_scores = list(map(lambda a: a[0] + (a[1] if a[1] < 10 else a[1] * 2),
@@ -62,8 +61,7 @@ class BCards(CardsPool):
             cs.cards.append(c)
             cs.values[c.val] += 1
             cs.suits[c.suit] += 1
-            cs.num += 1
-        if cs.num < 5:
+        if num < 5:
             if len(cs.values) != 1:
                 return False
             cs.type = CardsType.NoFive
@@ -105,17 +103,19 @@ class BCards(CardsPool):
         self.cur_cards = cs
         return True
 
+    def check_pre_player(self, player_id):
+        if player_id == self.pre_player:
+            self.pre_cards = None
+
     def check(self, play_cards, player_id):
-        print(self.pre_cards, play_cards)
+        self.check_pre_player(player_id)
         if not self.is_valid(play_cards):
             return False
-        if self.pre_cards and self.pre_cards.num != len(play_cards):
+        if self.pre_cards and len(self.pre_cards.cards) != len(play_cards):
             return False
         if not self.pre_cards:
             ret = True
         else:
-            print("pre: ", self.pre_cards,
-                  "cur: ", self.cur_cards)
             ret = self.pre_cards.priority < self.cur_cards.priority
 
         if ret:
@@ -130,6 +130,13 @@ class BCards(CardsPool):
 
     def reset_scores(self):
         self.player_scores = None
+
+    def com_ready(self, players):
+        for p in players:
+            if p.type == PlayerType.Computer:
+                p.processor.ready()
+            else:
+                p.ready = 0
 
     def clear(self):
         self.pre_cards = None

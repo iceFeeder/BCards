@@ -28,8 +28,7 @@ class Cards(object):
     def __init__(self):
         self.values = defaultdict(int)
         self.suits = defaultdict(int)
-        self.num = 0
-        self.type = CardsType.NoFive
+        self.type = None
         self.priority = 0
         self.cards = []
 

@@ -34,14 +34,14 @@ class Server(object):
     def notify(self):
         data = {"type": "init", "players": [p.covert2json() for p in self.players]}
         for i in range(len(self.players)):
-            self.players[i].location.send(json.dumps(data))
+            self.players[i].processor.send(json.dumps(data))
 
-    def add_player(self, player_type, location):
+    def add_player(self, player_type, processor):
         if not self.pre_check():
             return None
         player_id = len(self.players)
         player_name = "Player" + str(player_id)
-        player = Player(player_name, player_id, player_type, location)
+        player = Player(player_name, player_id, player_type, processor)
         self.players.append(player)
         print(player_name + "enter.")
         print("Players: ", self.players)
@@ -89,6 +89,7 @@ class Server(object):
             if over >= 0:
                 response['winner'] = over
                 self.gcore.reset()
+                self.gcore.com_ready(self.players)
             return response, constant.TO_ALL
         return {}, None
 
@@ -97,8 +98,9 @@ class Server(object):
         if not player:
             return {}, None
         computer = Computer(player, self)
-        player.set_location(computer)
-        return computer.ready()
+        player.set_processor(computer)
+        computer.ready()
+        return {}, None
 
     def shuffle(self):
         self.gcore.shuffle()

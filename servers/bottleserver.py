@@ -51,16 +51,16 @@ class BottleServer(Server):
     def load_img(self, img):
         return bottle.static_file(img, root='./ui/faces/')
 
-    def send_msg(self, response, to_all, location):
+    def send_msg(self, response, to_all, processor):
         if response:
             if to_all:
                 for i in range(len(self.players)):
                     if to_all == constant.TO_ALL:
-                        self.players[i].location.send(json.dumps(response))
+                        self.players[i].processor.send(json.dumps(response))
                     elif to_all == constant.DISPATCH:
-                        self.players[i].location.send(json.dumps(response[i]))
+                        self.players[i].processor.send(json.dumps(response[i]))
             else:
-                location.send(json.dumps(response))
+                processor.send(json.dumps(response))
 
     def connection(self, ws):
         player = self.add_player(PlayerType.Human, ws)

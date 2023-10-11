@@ -1,4 +1,6 @@
+import copy
 import json
+import time
 
 
 class Computer(object):
@@ -8,24 +10,55 @@ class Computer(object):
         self.gcore = server.gcore
         self.cards = self.gcore.get_cards(player.id)
 
+    def set_cards(self):
+        self.cards = self.gcore.get_cards(self.player.id)
+
+    def get_cards(self, n):
+        cards = []
+        cur = []
+
+        def dfs(k):
+            if len(cur) == n:
+                cards.append(copy.copy(cur))
+            elif len(cur) < n:
+                if k < len(self.cards):
+                    cur.append(self.cards[k])
+                    dfs(k + 1)
+                    cur.pop()
+                    dfs(k + 1)
+
+        dfs(0)
+        return cards
+
     def send(self, data):
         data = json.loads(data)
-        print("computer view: ", data)
-        res, to_all = {}, None
+        print("computer " + str(self.player.id) + "view: ", data)
         if self.gcore.cur_player == self.player.id:
-            pre = self.gcore.pre_cards
-            if not pre or len(pre.cards) == 1:
-                for c in self.cards:
-                    d = {'playCards': [c]}
-                    res, to_all = self.server.post_cards(self.player.id, d)
-                    print("com play: ", res)
-                    self.cards.remove(c)
-                    if res:
-                        break
+            time.sleep(2)
+            res, to_all = {}, None
+            self.gcore.check_pre_player(self.player.id)
+            num = len(self.gcore.pre_cards.cards) if self.gcore.pre_cards else 0
+            cards = []
+            if num == 0:
+                for i in range(5, 0, -1):
+                    cards += self.get_cards(i)
+            else:
+                cards = self.get_cards(num)
+            for cs in cards:
+                d = {'playCards': cs}
+                res, to_all = self.server.post_cards(self.player.id, d)
+                if res:
+                    print("computer " + str(self.player.id) + " play: ", res)
+                    if 'winner' not in res:
+                        for c in cs:
+                            self.cards.remove(c)
+                    break
             if not res:
-                print("com pass ...")
                 res, to_all = self.server.pass_turn(self.player.id)
-            self.server.send_msg(res, to_all, self.player.location)
+                print("computer " + str(self.player.id) + " pass ...", res)
+            self.server.send_msg(res, to_all, self.player.processor)
 
     def ready(self):
-        return self.server.ready(self.player.id)
+        res, to_all = self.server.ready(self.player.id)
+        self.set_cards()
+        self.server.send_msg(res, to_all, self.player.processor)
