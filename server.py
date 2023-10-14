@@ -2,7 +2,6 @@ import abc
 
 from gcore.bcards.bcards import BCards
 import constant
-import copy
 from gcore.player import *
 from gcore.bcards.AI import *
 import json
@@ -88,6 +87,7 @@ class Server(object):
             response['player_scores'] = self.gcore.player_scores
             if over >= 0:
                 response['winner'] = over
+                self.gcore.pre_winner = over
                 self.gcore.reset()
                 self.gcore.com_ready(self.players)
             return response, constant.TO_ALL

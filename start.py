@@ -20,6 +20,7 @@ SERVER_MAP = {
     "web": WebServer,
 }
 
+
 class Parser:
     def __init__(self, desc, args=[]):
         self.unparsed_args = args
@@ -66,7 +67,7 @@ class Parser:
         config = ConfigParser.SafeConfigParser()
         config.read(self.cfg_file)
         for section in config.sections():
-             self.parser.set_defaults(**dict(config.items(section)))
+            self.parser.set_defaults(**dict(config.items(section)))
         return self.parser.parse_args(self.unparsed_args)
 
 

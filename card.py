@@ -1,5 +1,6 @@
 from enum import IntEnum
 from collections import defaultdict
+from functools import total_ordering
 
 
 class Card(object):
@@ -10,9 +11,10 @@ class Card(object):
         self.val = val % 13
         self.rank = self.PRIORITY_RANK[val % 13]
         self.suit = self.PRIORITY_SUIT[val // 13]
+        self.priority = self.rank * 10 + self.suit
 
     def __str__(self):
-        return "({}, {})".format(self.val, self.suit)
+        return "({}, {}, {})".format(self.val, self.suit, self.priority)
 
 
 class CardsType(IntEnum):
@@ -24,6 +26,7 @@ class CardsType(IntEnum):
     FlushStraight = 5
 
 
+@total_ordering
 class Cards(object):
     def __init__(self):
         self.values = defaultdict(int)
@@ -31,9 +34,15 @@ class Cards(object):
         self.type = None
         self.priority = 0
         self.cards = []
+        self.raw_cards = []
 
     def __str__(self):
         return ' '.join(map(str, self.cards)) + \
                "\nPriority: " + str(self.priority) + \
                "\nType: " + str(int(self.type))
 
+    def __eq__(self, other):
+        return self.priority == other.priority
+
+    def __lt__(self, other):
+        return self.priority < other.priority
