@@ -5,7 +5,7 @@ from functools import total_ordering
 
 class Card(object):
     PRIORITY_RANK = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13}
-    PRIORITY_SUIT = {0: 3, 1: 2, 2: 1, 3: 0, 4: 4}
+    PRIORITY_SUIT = {0: 4, 1: 3, 2: 2, 3: 1, 4: 5}
 
     def __init__(self, val):
         self.val = val % 13

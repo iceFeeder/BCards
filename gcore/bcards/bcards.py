@@ -90,7 +90,10 @@ class BCards(CardsPool):
             if len(cs.values) != 1:
                 return None
             cs.type = CardsType.NoFive
-            cs.priority = cs.cards[0].rank * 10 + cs.cards[0].suit
+            max_suit = 0
+            for i in range(num):
+                max_suit = max(max_suit, cs.cards[i].suit)
+            cs.priority = cs.cards[0].rank * 10 + max_suit
         else:
             if len(cs.values) == 5:
                 start = None
@@ -111,7 +114,7 @@ class BCards(CardsPool):
                         cs.type = CardsType.FlushStraight
                     else:
                         cs.type = CardsType.Flush
-                    cs.priority += (cs.cards[0].suit + 1) * 100
+                    cs.priority += cs.cards[0].suit * 100
                 if cs.type is None:
                     return None
             elif len(cs.values) == 2:
