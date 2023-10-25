@@ -93,7 +93,7 @@ class BCards(CardsPool):
             max_suit = 0
             for i in range(num):
                 max_suit = max(max_suit, cs.cards[i].suit)
-            cs.priority = cs.cards[0].rank * 10 + max_suit
+            cs.priority = (cs.cards[0].rank * 10 + max_suit) * 100
         else:
             if len(cs.values) == 5:
                 start = None

@@ -3,6 +3,8 @@ import json
 import time
 from enum import IntEnum
 
+from gcore.bcards.bcard import BCard
+
 
 class ComputerType(IntEnum):
     EASY = 1
@@ -35,11 +37,14 @@ class Computer(object):
                 if self.has_cards(cs.raw_cards, tmp_cards):
                     final_cards.append(cs)
                     for c in cs.raw_cards:
+                        if BCard(c).rank == 12 and i != 5:
+                            continue
                         tmp_cards.remove(c)
             final_cards.sort()
             new_cards = cards if self.type == ComputerType.EASY else final_cards
             total += new_cards
             valid_cards[i] = new_cards if new_cards else []
+        total.sort()
         valid_cards[0] = total
         return valid_cards
 
