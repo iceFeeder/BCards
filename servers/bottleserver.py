@@ -4,6 +4,7 @@ from bottle.ext.websocket import GeventWebSocketServer, websocket
 import json
 import constant
 from gcore.player import Player, PlayerType
+import traceback
 
 
 @bottle.error(400)
@@ -82,6 +83,7 @@ class BottleServer(Server):
                     break
             except Exception as e:
                 print("got Exception: ", str(e))
+                traceback.print_stack()
                 break
         print("Game Over...")
         print(player.name + "quit.")
