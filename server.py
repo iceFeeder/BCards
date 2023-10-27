@@ -115,6 +115,10 @@ class Server(object):
         self.players = []
         for p in tmp:
             if p.type != PlayerType.Computer and p != player:
+                i = len(self.players)
+                p.id = i
+                p.name = "Player" + str(i)
+                p.ready = 0
                 self.players.append(p)
         self.gcore.reset()
 

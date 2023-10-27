@@ -19,6 +19,7 @@ $ready.textContent = 'Ready'
 $play.textContent = 'Play'
 $pass.textContent = 'Pass'
 $add_com.textContent = 'Add Computer'
+var can_add_com = true;
 
 $topbar.appendChild($ready)
 $topbar.appendChild($add_com)
@@ -35,6 +36,7 @@ var ws = new WebSocket('ws://192.168.3.9:8080/websocket');
 var player_id;
 var cur_player_id;
 var pre_player_id;
+var started = false;
 
 function change_name_color() {
   if (cur_player_id == player_id) {
@@ -57,26 +59,14 @@ function game_start() {
     discardCards = null
   }
   $topbar.removeChild($ready)
-  if ($add_com != null) {
+  if (can_add_com == true) {
     $topbar.removeChild($add_com)
-    $add_com = null
+    can_add_com = false
   }
   $topbar.appendChild($pass)
   $bottombar.appendChild($play)
   $bottombar.appendChild($playname)
-}
-
-function gen_players_info(player_cards, player_scores) {
-  for (var i = 0; i < player_cards.length; ++i) {
-    var $pinfo = document.createElement('div')
-    if (i == cur_player_id) {
-      $pinfo.style.color = '#33cd3c'
-    } else {
-      $pinfo.style.color = '#333333'
-    }
-    $sysinfo.appendChild($pinfo)
-    $playinfos.push($pinfo)
-  }
+  started = true
 }
 
 function update_players_info(player_cards, player_scores) {
@@ -131,6 +121,7 @@ function game_over(winner) {
   $topbar.appendChild($ready)
   $topbar.removeChild($pass)
   $bottombar.removeChild($play)
+  started = false
 }
 
 function send_msg(action, data) {
@@ -159,11 +150,26 @@ function update_players(data) {
       $playinfos[i].style.color = '#333333'
     }
   }
+  for (var i = $playinfos.length - 1; i >= players.length; --i) {
+    $sysinfo.removeChild($playinfos[i])
+    $playinfos.pop()
+  }
 }
 
 ws.onmessage = function(evt) {
   var data = JSON.parse(evt.data);
   if (data.type == "init") {
+    console.log(data)
+    if (started) {
+      $topbar.appendChild($ready)
+      $topbar.removeChild($pass)
+      $bottombar.removeChild($play)
+      if (!can_add_com) {
+        $topbar.appendChild($add_com)
+        can_add_com = true
+      }
+      started = false
+    }
     update_players(data)
   }
   else if (data.type == "ready") {
