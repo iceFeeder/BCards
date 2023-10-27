@@ -83,9 +83,9 @@ def str_cards_list(cards_list):
     return "[" + ','.join(map(str, cards_list)) + "]"
 
 
-def print_raw_cards(raw_cards):
+def str_raw_cards(raw_cards):
     cards = []
     for c in raw_cards:
         cards.append(Card(c))
     cards.sort()
-    print(''.join(map(str, cards)))
+    return ''.join(map(str, cards))

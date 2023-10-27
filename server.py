@@ -42,13 +42,12 @@ class Server(object):
         player_name = "Player" + str(player_id)
         player = Player(player_name, player_id, player_type, processor)
         self.players.append(player)
-        print(player_name + "enter.")
-        print("Players: ", self.players)
         return player
 
     def pass_turn(self, player_id, data=None):
         if not self.gcore.pass_player(player_id):
             return {}, None
+        print("Player" + str(player_id) + " Pass")
         return {"type": "pass", 'cur_player_id': self.gcore.cur_player}, constant.TO_ALL
 
     def ready(self, player_id, data=None):
@@ -86,6 +85,7 @@ class Server(object):
             response['pre_player_id'] = self.gcore.pre_player
             over = self.gcore.game_over()
             response['player_scores'] = self.gcore.player_scores
+            print("Player" + str(player_id) + ": " + str_raw_cards(play_cards))
             if over >= 0:
                 response['winner'] = over
                 self.gcore.pre_winner = over

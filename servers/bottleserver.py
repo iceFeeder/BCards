@@ -73,11 +73,9 @@ class BottleServer(Server):
                 msg = ws.receive()
                 if msg is not None:
                     msg = json.loads(msg)
-                    print(msg)
                     method = getattr(self, msg['action'])
                     player_id = self.players.index(player)
                     ret, to_all = method(player_id, msg['data'])
-                    print("ret: ", ret)
                     self.send_msg(ret, to_all, ws)
                 else:
                     break
@@ -86,7 +84,7 @@ class BottleServer(Server):
                 traceback.print_stack()
                 break
         print("Game Over...")
-        print(player.name + "quit.")
+        print(player.name + " quit.")
         self.reset(player)
         self.gcore.reset_scores()
         self.notify()
