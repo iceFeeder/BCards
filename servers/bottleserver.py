@@ -76,6 +76,7 @@ class BottleServer(Server):
                     print(msg)
                     method = getattr(self, msg['action'])
                     player_id = self.players.index(player)
+                    player.id = player_id
                     ret, to_all = method(player_id, msg['data'])
                     print("ret: ", ret)
                     self.send_msg(ret, to_all, ws)
@@ -87,8 +88,7 @@ class BottleServer(Server):
                 break
         print("Game Over...")
         print(player.name + "quit.")
-        self.reset()
-        self.players.remove(player)
+        self.reset(player)
         self.gcore.reset_scores()
 
     def route(self, uri, method, handler, apply=None):

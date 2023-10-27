@@ -17,6 +17,10 @@ class BCards(CardsPool):
         self.ok = set()
         self.player_scores = None
         self.pre_winner = None
+        self.started = False
+
+    def pre_check(self, players):
+        return len(players) < self.max_players and not self.started
 
     def pass_player(self, player_id):
         if player_id != self.cur_player or player_id == self.pre_player:
@@ -43,7 +47,9 @@ class BCards(CardsPool):
         for i in range(len(players)):
             cards = self.get_cards(i)
             for c in cards:
-                if self.get_priority(c) < min_card:
+                priority = self.get_priority(c)
+                if priority < min_card:
+                    min_card = priority
                     init_player = i
         return init_player
 
@@ -55,8 +61,8 @@ class BCards(CardsPool):
             self.player_cards = [13] * self.player_num
             if self.player_scores is None:
                 self.player_scores = [0] * self.player_num
-            return True
-        return False
+            self.started = True
+        return self.started
 
     def game_over(self):
         def get_score(pp):
@@ -72,6 +78,7 @@ class BCards(CardsPool):
             if self.player_cards[i] == 0:
                 self.player_scores = \
                     list(map(get_score, zip(self.player_scores, self.player_cards)))
+                self.started = False
                 return i
         return -1
 
@@ -85,14 +92,14 @@ class BCards(CardsPool):
             cs.cards.append(c)
             cs.raw_cards.append(v)
             cs.values[c.val] += 1
-            cs.suits[c.suit] += 1
+            cs.suits[c.suit_rank] += 1
         if num < 5:
             if len(cs.values) != 1:
                 return None
             cs.type = CardsType.NoFive
             max_suit = 0
             for i in range(num):
-                max_suit = max(max_suit, cs.cards[i].suit)
+                max_suit = max(max_suit, cs.cards[i].suit_rank)
             cs.priority = (cs.cards[0].rank * 10 + max_suit) * 100
         else:
             if len(cs.values) == 5:
@@ -114,7 +121,7 @@ class BCards(CardsPool):
                         cs.type = CardsType.FlushStraight
                     else:
                         cs.type = CardsType.Flush
-                    cs.priority += cs.cards[0].suit * 100
+                    cs.priority += cs.cards[0].suit_rank * 100
                 if cs.type is None:
                     return None
             elif len(cs.values) == 2:
@@ -127,7 +134,7 @@ class BCards(CardsPool):
                         cs.priority = BCard.PRIORITY_RANK[card]
             else:
                 return None
-        cs.priority += int(cs.type) * 1000
+        cs.priority += int(cs.type) * 3000
         return cs
 
     def check_pre_player(self, player_id):
@@ -175,3 +182,4 @@ class BCards(CardsPool):
         self.pre_player = None
         self.player_cards = None
         self.ok = set()
+        self.started = False

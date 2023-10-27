@@ -34,6 +34,7 @@ if (!window.WebSocket && window.MozWebSocket) {
 var ws = new WebSocket('ws://192.168.3.9:8080/websocket');
 var player_id;
 var cur_player_id;
+var pre_player_id;
 
 function change_name_color() {
   if (cur_player_id == player_id) {
@@ -68,7 +69,6 @@ function game_start() {
 function gen_players_info(player_cards, player_scores) {
   for (var i = 0; i < player_cards.length; ++i) {
     var $pinfo = document.createElement('div')
-    $pinfo.textContent = "P" + i + "[" + player_cards[i]+ "]" + ": " + player_scores[i]
     if (i == cur_player_id) {
       $pinfo.style.color = '#33cd3c'
     } else {
@@ -81,7 +81,11 @@ function gen_players_info(player_cards, player_scores) {
 
 function update_players_info(player_cards, player_scores) {
   for (var i = 0; i < player_cards.length; ++i) {
-    $playinfos[i].textContent = "P" + i + "[" + player_cards[i]+ "]" + ": " + player_scores[i]
+    if (i == pre_player_id) {
+      $playinfos[i].textContent = "P" + i + "[" + player_cards[i]+ "]" + ": " + player_scores[i] + " <-"
+    } else {
+      $playinfos[i].textContent = "P" + i + "[" + player_cards[i]+ "]" + ": " + player_scores[i]
+    }
     if (i == cur_player_id) {
       $playinfos[i].style.color = '#33cd3c'
     } else {
@@ -178,6 +182,7 @@ ws.onmessage = function(evt) {
     console.log(data.playCards)
     if (data.playCards.length > 0) {
       cur_player_id = data.cur_player_id
+      pre_player_id = data.pre_player_id
       change_name_color()
       if (player_id == data.player_id) {
         deck.playPost()

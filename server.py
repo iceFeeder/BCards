@@ -28,7 +28,7 @@ class Server(object):
         self.shuffle()
 
     def pre_check(self):
-        return len(self.players) < self.gcore.max_players
+        return self.gcore.pre_check(self.players)
 
     def notify(self):
         data = {"type": "init", "players": [p.covert2json() for p in self.players]}
@@ -83,6 +83,7 @@ class Server(object):
             response['player_cards'] = self.gcore.player_cards
             self.gcore.update_player()
             response['cur_player_id'] = self.gcore.cur_player
+            response['pre_player_id'] = self.gcore.pre_player
             over = self.gcore.game_over()
             response['player_scores'] = self.gcore.player_scores
             if over >= 0:
@@ -109,7 +110,12 @@ class Server(object):
         ret, to_all = self.get_cards(id)
         return ret
 
-    def reset(self):
+    def reset(self, player):
+        tmp = self.players
+        self.players = []
+        for p in tmp:
+            if p.type != PlayerType.Computer and p != player:
+                self.players.append(p)
         self.gcore.reset()
 
     @abc.abstractmethod

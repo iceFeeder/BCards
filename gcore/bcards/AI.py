@@ -1,8 +1,8 @@
 import copy
 import json
 import time
-from enum import IntEnum
 
+from card import *
 from gcore.bcards.bcard import BCard
 
 
@@ -19,10 +19,17 @@ class Computer(object):
         self.gcore = server.gcore
         self.cards = self.gcore.get_cards(player.id)
         self.valid_cards = self.get_valid_cards()
+        self.print_valid_cards()
 
     def set_cards(self):
         self.cards = self.gcore.get_cards(self.player.id)
         self.valid_cards = self.get_valid_cards()
+        self.print_valid_cards()
+
+    def print_valid_cards(self):
+        print("Computer" + str(self.player.id) + " valid cards:")
+        for cards in self.valid_cards.values():
+            print(str_cards_list(cards))
 
     def get_valid_cards(self):
         valid_cards = {}
@@ -79,7 +86,7 @@ class Computer(object):
         self.gcore.check_pre_player(self.player.id)
         num = len(self.gcore.pre_cards.cards) if self.gcore.pre_cards else 0
         cards = self.valid_cards[num]
-        print("valid cards: ", cards, num)
+        print("valid cards: ", str_cards_list(cards), num)
         for cs in cards:
             if not self.has_cards(cs.raw_cards):
                 continue
