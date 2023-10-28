@@ -185,7 +185,7 @@ ws.onmessage = function(evt) {
     }
   }
   else if (data.type == "play") {
-    console.log(data.playCards)
+    console.log(data)
     if (data.playCards.length > 0) {
       cur_player_id = data.cur_player_id
       pre_player_id = data.pre_player_id

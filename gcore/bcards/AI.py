@@ -1,5 +1,4 @@
 import copy
-import time
 
 from card import *
 from gcore.bcards.bcard import BCard
@@ -97,7 +96,6 @@ class Computer(object):
 
     def send(self, data):
         if self.gcore.cur_player == self.player.id:
-            time.sleep(2)
             res, to_all = self.play()
             self.server.send_msg(res, to_all, self.player.processor)
 

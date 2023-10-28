@@ -26,6 +26,7 @@ class Server(object):
         self.gcore = GAME_MAP[game]()
         self.players = []
         self.shuffle()
+        self.event_queue = []
 
     def pre_check(self):
         return self.gcore.pre_check(self.players)

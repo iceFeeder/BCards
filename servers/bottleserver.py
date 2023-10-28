@@ -1,3 +1,6 @@
+import time
+
+from gcore.bcards.AI import Computer
 from server import Server
 import bottle
 from bottle.ext.websocket import GeventWebSocketServer, websocket
@@ -57,11 +60,19 @@ class BottleServer(Server):
             if to_all:
                 for i in range(len(self.players)):
                     if to_all == constant.TO_ALL:
-                        self.players[i].processor.send(json.dumps(response))
+                        self.event_queue.append((self.players[i].processor, json.dumps(response)))
                     elif to_all == constant.DISPATCH:
-                        self.players[i].processor.send(json.dumps(response[i]))
+                        self.event_queue.append((self.players[i].processor, json.dumps(response[i])))
             else:
-                processor.send(json.dumps(response))
+                self.event_queue.append(processor, json.dumps(response))
+            self.event_queue.append((None, None))
+            while self.event_queue:
+                p, data = self.event_queue.pop(0)
+                if p:
+                    p.send(data)
+                else:
+                    # delay 1 seconds while one round end
+                    time.sleep(1)
 
     def connection(self, ws):
         player = self.add_player(PlayerType.Human, ws)

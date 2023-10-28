@@ -61,6 +61,9 @@ class BCards(CardsPool):
             self.player_cards = [13] * self.player_num
             if self.player_scores is None:
                 self.player_scores = [0] * self.player_num
+            else:
+                while len(self.player_scores) < self.player_num:
+                    self.player_scores.append(0)
             self.started = True
         return self.started
 
