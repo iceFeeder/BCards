@@ -4,16 +4,10 @@ from card import *
 from gcore.bcards.bcard import BCard
 
 
-class ComputerType(IntEnum):
-    EASY = 1
-    HARD = 2
-
-
 class Computer(object):
-    def __init__(self, player, server, com_type=ComputerType.HARD):
+    def __init__(self, player, server):
         self.player = player
         self.server = server
-        self.type = com_type
         self.gcore = server.gcore
         self.cards = []
         self.valid_cards = {}
@@ -22,12 +16,12 @@ class Computer(object):
         self.cards = self.gcore.get_cards(self.player.id)
         self.valid_cards = self.get_valid_cards()
 
-    def get_valid_cards(self):
+    def get_valid_cards(self, all_result=False):
         valid_cards = {}
         total = []
         tmp_cards = copy.deepcopy(self.cards)
         for i in range(5, 0, -1):
-            cur_cards = self.cards if self.type == ComputerType.EASY else tmp_cards
+            cur_cards = self.cards if all_result else tmp_cards
             cards = self.get_cards(i, cur_cards)
             cards.sort()
             final_cards = []
@@ -39,7 +33,7 @@ class Computer(object):
                             continue
                         tmp_cards.remove(c)
             final_cards.sort()
-            new_cards = cards if self.type == ComputerType.EASY else final_cards
+            new_cards = cards if all_result else final_cards
             total += new_cards
             valid_cards[i] = new_cards if new_cards else []
         total.sort()
@@ -96,6 +90,7 @@ class Computer(object):
 
     def send(self, data):
         if self.gcore.cur_player == self.player.id:
+            self.server.delay(2)
             res, to_all = self.play()
             self.server.send_msg(res, to_all, self.player.processor)
 

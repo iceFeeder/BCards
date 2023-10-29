@@ -55,6 +55,9 @@ class BottleServer(Server):
     def load_img(self, img):
         return bottle.static_file(img, root='./ui/faces/')
 
+    def delay(self, sec):
+        self.event_queue.append((None, sec))
+
     def send_msg(self, response, to_all, processor):
         if response:
             if to_all:
@@ -65,14 +68,12 @@ class BottleServer(Server):
                         self.event_queue.append((self.players[i].processor, json.dumps(response[i])))
             else:
                 self.event_queue.append(processor, json.dumps(response))
-            self.event_queue.append((None, None))
             while self.event_queue:
                 p, data = self.event_queue.pop(0)
                 if p:
                     p.send(data)
                 else:
-                    # delay 1 seconds while one round end
-                    time.sleep(1)
+                    time.sleep(data)
 
     def connection(self, ws):
         player = self.add_player(PlayerType.Human, ws)
