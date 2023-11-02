@@ -11,17 +11,21 @@ class Computer(object):
         self.gcore = server.gcore
         self.cards = []
         self.valid_cards = {}
+        self.continue_pass = 0
+        self.pre_is_pass = False
+        self.split_cards = False
 
     def set_cards(self):
         self.cards = self.gcore.get_cards(self.player.id)
+        self.split_cards = False
         self.valid_cards = self.get_valid_cards()
 
-    def get_valid_cards(self, all_result=False):
+    def get_valid_cards(self):
         valid_cards = {}
         total = []
         tmp_cards = copy.deepcopy(self.cards)
         for i in range(5, 0, -1):
-            cur_cards = self.cards if all_result else tmp_cards
+            cur_cards = self.cards if self.split_cards else tmp_cards
             cards = self.get_cards(i, cur_cards)
             cards.sort()
             final_cards = []
@@ -33,12 +37,12 @@ class Computer(object):
                             continue
                         tmp_cards.remove(c)
             final_cards.sort()
-            new_cards = cards if all_result else final_cards
+            new_cards = cards if self.split_cards else final_cards
             total += new_cards
             valid_cards[i] = new_cards if new_cards else []
         total.sort()
         valid_cards[0] = total
-        print(str_cards_list(total))
+        print("Player" + str(self.player.id) + ": " + str_cards_list(total))
         return valid_cards
 
     def has_cards(self, cards, cur_cards=None):
@@ -79,12 +83,23 @@ class Computer(object):
             d = {'playCards': cs.raw_cards}
             res, to_all = self.server.post_cards(self.player.id, d)
             if res:
+                self.pre_is_pass = False
                 if 'winner' not in res:
                     for c in cs.raw_cards:
                         self.cards.remove(c)
                     self.valid_cards[0].remove(cs)
+                if self.split_cards:
+                    self.split_cards = False
+                    self.valid_cards = self.get_valid_cards()
                 break
         if not res:
+            if self.pre_is_pass:
+                self.continue_pass += 1
+            self.pre_is_pass = True
+            if self.continue_pass == 2:
+                self.continue_pass = 0
+                self.split_cards = True
+                self.valid_cards = self.get_valid_cards()
             res, to_all = self.server.pass_turn(self.player.id)
         return res, to_all
 
