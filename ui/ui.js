@@ -12,12 +12,14 @@ var $ready = document.createElement('button')
 var $play = document.createElement('button')
 var $pass = document.createElement('button')
 var $add_com = document.createElement('button')
+var $sort = document.createElement('button')
 var $playname = document.createElement('div')
 var $playinfos = []
 
 $ready.textContent = 'Ready'
 $play.textContent = 'Play'
 $pass.textContent = 'Pass'
+$sort.textContent = 'Sort'
 $add_com.textContent = 'Add Computer'
 var can_add_com = true;
 
@@ -37,6 +39,7 @@ var player_id;
 var cur_player_id;
 var pre_player_id;
 var started = false;
+var sort_type = 0;
 
 function change_name_color() {
   if (cur_player_id == player_id) {
@@ -65,6 +68,7 @@ function game_start() {
   }
   $topbar.appendChild($pass)
   $bottombar.appendChild($play)
+  $bottombar.appendChild($sort)
   $bottombar.appendChild($playname)
   started = true
 }
@@ -121,6 +125,7 @@ function game_over(winner) {
   $topbar.appendChild($ready)
   $topbar.removeChild($pass)
   $bottombar.removeChild($play)
+  $bottombar.removeChild($sort)
   started = false
 }
 
@@ -229,5 +234,17 @@ $pass.addEventListener('click', function() {
     return
   }
   send_msg("pass_turn", "")
+})
+
+$sort.addEventListener('click', function() {
+  deck.cards.sort(function (a, b) {
+    if (sort_type) {
+      return a.rank - b.rank
+    } else {
+      return a.i - b.i
+    }
+  });
+  sort_type ^= 1
+  deck.poker()
 })
 

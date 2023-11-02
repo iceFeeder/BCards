@@ -71,6 +71,22 @@ body {
   color: #fff;
   cursor: pointer;
 }
+#bottombar button {
+  background: none;
+  border: 1px solid #fff;
+  outline: none;
+  margin: 0.1rem;
+  padding: 0.4rem;
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 1;
+  color: #fff;
+  cursor: pointer;
+}
+#bottombar button:hover {
+  background-color: #fff;
+  color: #444;
+}
 #topbar {
   position: fixed;
   top: 0;
