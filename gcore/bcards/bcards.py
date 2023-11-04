@@ -22,15 +22,21 @@ class BCards(CardsPool):
     def pre_check(self, players):
         return len(players) < self.max_players and not self.started
 
+    def get_next_player_id(self):
+        return (self.cur_player + 1) % self.player_num
+
+    def get_next_player_remain_cards(self):
+        return self.player_cards[self.get_next_player_id()]
+
     def pass_player(self, player_id):
         if player_id != self.cur_player or player_id == self.pre_player:
             return False
-        self.cur_player = (self.cur_player + 1) % self.player_num
+        self.cur_player = self.get_next_player_id()
         return True
 
     def update_player(self):
         self.pre_player = self.cur_player
-        self.cur_player = (self.cur_player + 1) % self.player_num
+        self.cur_player = self.get_next_player_id()
 
     def get_cards(self, index=0):
         index = int(index) % 4

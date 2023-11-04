@@ -77,6 +77,8 @@ class Computer(object):
         num = len(self.gcore.pre_cards.cards) if self.gcore.pre_cards else 0
         cards = self.valid_cards[num]
         print(str_cards_list(self.valid_cards[0]), num)
+        if self.gcore.get_next_player_remain_cards() == 1:
+            cards.sort(reverse=True)
         for cs in cards:
             if not self.has_cards(cs.raw_cards):
                 continue
