@@ -34,7 +34,10 @@ var discardCards = null;
 if (!window.WebSocket && window.MozWebSocket) {
   window.WebSocket = window.MozWebSocket;
 }
-var ws = new WebSocket('ws://192.168.3.9:8080/websocket');
+
+var host = window.location.host;
+var websocket_url = `ws://${host}/websocket`;
+var ws = new WebSocket(websocket_url);
 var player_id;
 var cur_player_id;
 var pre_player_id;
