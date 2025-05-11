@@ -10,14 +10,12 @@ import textwrap
 from six.moves import configparser as ConfigParser
 
 from servers.bottleserver import BottleServer
-from servers.webserver import WebServer
 
 
 SCRIPTDIR = os.path.abspath(os.path.dirname(sys.argv[0]))
 
 SERVER_MAP = {
     "bottle": BottleServer,
-    "web": WebServer,
 }
 
 
@@ -64,7 +62,7 @@ class Parser:
         self.parser = aparser
 
     def load_config_file(self):
-        config = ConfigParser.SafeConfigParser()
+        config = ConfigParser.RawConfigParser()
         config.read(self.cfg_file)
         for section in config.sections():
             self.parser.set_defaults(**dict(config.items(section)))
